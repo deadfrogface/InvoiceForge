@@ -20,7 +20,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Version aus Tag setzen (bei Tag-Push)
         if: startsWith(github.ref, 'refs/tags/')
