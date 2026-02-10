@@ -1,0 +1,55 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:  # optional: manuell unter Actions → Build and Release → Run workflow
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write  # für Release erstellen und Assets hochladen
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Version aus Tag setzen (bei Tag-Push)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $version = $tag.TrimStart('v')
+          npm pkg set version=$version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Icon erzeugen
+        run: npm run create-icon
+
+      - name: Installer bauen
+        run: npm run build
+
+      - name: Release erstellen und Installer anhängen (nur bei Tag-Push)
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build-Artefakt hochladen (bei manueller Ausführung)
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@v4
+        with:
+          name: InvoiceForge-Installer
+          path: dist/*.exe
