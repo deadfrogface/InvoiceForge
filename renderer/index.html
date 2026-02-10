@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InvoiceForge</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>InvoiceForge</h1>
+    </header>
+
+    <section class="card" id="section-company">
+      <h2>Firmendaten</h2>
+      <div class="grid grid-2">
+        <label>Firmenname <input type="text" id="companyName" placeholder="Meine Firma GmbH"></label>
+        <label>Steuersatz (%) <input type="number" id="taxRate" value="19" min="0" step="0.01"></label>
+      </div>
+      <label>Adresse <textarea id="companyAddress" rows="2" placeholder="Straße 1&#10;PLZ Ort"></textarea></label>
+      <label>USt-ID <input type="text" id="companyVatId" placeholder="DE123456789"></label>
+      <label>Bankverbindung (optional) <textarea id="companyBank" rows="3" placeholder="IBAN, BIC, Bankname"></textarea></label>
+      <button type="button" class="btn btn-secondary" id="btnSaveCompany">Firmendaten speichern</button>
+    </section>
+
+    <section class="card" id="section-customer">
+      <h2>Kundendaten</h2>
+      <label>Name <input type="text" id="customerName" placeholder="Kundenname"></label>
+      <label>Adresse <textarea id="customerAddress" rows="2" placeholder="Straße 1&#10;PLZ Ort"></textarea></label>
+    </section>
+
+    <section class="card" id="section-invoice-head">
+      <h2>Rechnung</h2>
+      <div class="grid grid-3">
+        <label>Rechnungsnummer <input type="text" id="invoiceNumber" placeholder="1001"></label>
+        <label>Datum <input type="date" id="invoiceDate"></label>
+        <label>Fälligkeitsdatum <input type="date" id="dueDate"></label>
+      </div>
+    </section>
+
+    <section class="card" id="section-positions">
+      <h2>Positionen</h2>
+      <div class="table-wrap">
+        <table id="positionsTable">
+          <thead>
+            <tr>
+              <th>Beschreibung</th>
+              <th class="col-qty">Menge</th>
+              <th class="col-price">Einzelpreis (€)</th>
+              <th class="col-total">Gesamt (€)</th>
+              <th class="col-action"></th>
+            </tr>
+          </thead>
+          <tbody id="positionsBody">
+            <!-- Zeilen dynamisch -->
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="btn btn-secondary" id="btnAddPosition">Position hinzufügen</button>
+    </section>
+
+    <section class="card" id="section-totals">
+      <h2>Summen</h2>
+      <div class="totals">
+        <div class="totals-row"><span>Zwischensumme (netto)</span><span id="subtotal">0,00 €</span></div>
+        <div class="totals-row"><span>Steuer</span><span id="taxAmount">0,00 €</span></div>
+        <div class="totals-row total"><span>Gesamtbetrag (brutto)</span><span id="grandTotal">0,00 €</span></div>
+      </div>
+    </section>
+
+    <footer class="actions">
+      <button type="button" class="btn btn-primary" id="btnCreatePdf">PDF erstellen</button>
+    </footer>
+  </div>
+
+  <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+  <script src="../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

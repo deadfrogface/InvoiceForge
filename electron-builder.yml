@@ -1,0 +1,12 @@
+appId: com.invoiceforge.app
+productName: InvoiceForge
+directories:
+  output: dist
+win:
+  target: nsis
+  icon: assets/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: assets/icon.ico
+  uninstallerIcon: assets/icon.ico
