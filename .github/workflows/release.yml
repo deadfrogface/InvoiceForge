@@ -35,7 +35,7 @@ jobs:
         run: npm run create-icon
 
       - name: Installer bauen
-        run: npm run build
+        run: npm run build -- --publish never
 
       - name: Release erstellen und Installer anhängen (nur bei Tag-Push)
         if: github.ref_type == 'tag'
