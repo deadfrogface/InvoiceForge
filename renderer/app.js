@@ -30,6 +30,30 @@
 
   let rowIndex = 0;
 
+  let messageTimeoutId = null;
+
+  function showMessage(text, type) {
+    const bar = document.getElementById('messageBar');
+    if (!bar) {
+      // Fallback, falls das Element nicht existiert
+      alert(text);
+      return;
+    }
+
+    if (messageTimeoutId) {
+      clearTimeout(messageTimeoutId);
+      messageTimeoutId = null;
+    }
+
+    bar.textContent = text;
+    bar.className = 'message' + (type ? ' ' + type : '');
+    bar.classList.remove('hidden');
+
+    messageTimeoutId = setTimeout(() => {
+      bar.classList.add('hidden');
+    }, 8000);
+  }
+
   function getEl(id) {
     return document.getElementById(id);
   }
@@ -197,7 +221,7 @@
     const data = getFormData();
     const err = validate(data);
     if (err) {
-      alert(err);
+      showMessage(err, 'error');
       return;
     }
     const doc = buildPdf(data);
@@ -208,7 +232,7 @@
     if (result.ok) {
       const num = parseInt(data.invoice.number, 10);
       if (!isNaN(num)) await api.saveLastInvoiceNumber(num);
-      alert('PDF gespeichert: ' + result.filePath);
+      showMessage('PDF gespeichert: ' + result.filePath, 'success');
     }
   }
 
@@ -241,7 +265,7 @@
   btnSaveCompany.addEventListener('click', async () => {
     const data = getFormData();
     await api.saveCompanyData(data.company);
-    alert('Firmendaten gespeichert.');
+    showMessage('Firmendaten gespeichert.', 'success');
   });
 
   btnAddPosition.addEventListener('click', () => addPositionRow());
