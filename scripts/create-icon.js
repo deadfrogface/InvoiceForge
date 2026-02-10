@@ -1,29 +1,30 @@
 /**
- * Erstellt eine minimale 32x32 ICO-Datei für InvoiceForge (blau/weiß).
+ * Erstellt eine 256x256 ICO-Datei für InvoiceForge (electron-builder verlangt mind. 256x256).
  * Ausführen: node scripts/create-icon.js
  */
 const fs = require('fs');
 const path = require('path');
 
 const outPath = path.join(__dirname, '..', 'assets', 'icon.ico');
+const SIZE = 256;
 
 // ICO header (6 bytes)
 const header = Buffer.alloc(6);
-header.writeUInt16LE(0, 0);   // reserved
-header.writeUInt16LE(1, 2);   // type = ICO
-header.writeUInt16LE(1, 4);   // count = 1
+header.writeUInt16LE(0, 0);
+header.writeUInt16LE(1, 2);
+header.writeUInt16LE(1, 4);
 
-// 32x32 32bpp ICO: XOR 32*32*4 + AND mask 32*ceil(32/8) = 4096 + 128 = 4224, + 40 header = 4264
-const xorSize = 32 * 32 * 4;
-const andRow = Math.floor((32 + 31) / 32) * 4;
-const andSize = 32 * andRow;
+// 256x256 32bpp: XOR 256*256*4, AND 256 rows × 32 bytes/row
+const xorSize = SIZE * SIZE * 4;
+const andRowBytes = Math.floor((SIZE + 31) / 32) * 4;
+const andSize = SIZE * andRowBytes;
 const dibSize = 40 + xorSize + andSize;
 const fileOffset = 6 + 16;
 
-// Directory entry (16 bytes)
+// Directory entry: 0,0 = 256 (ICO speichert 256 als 0 im 1-Byte-Feld)
 const entry = Buffer.alloc(16);
-entry[0] = 32;
-entry[1] = 32;
+entry[0] = SIZE === 256 ? 0 : SIZE;
+entry[1] = SIZE === 256 ? 0 : SIZE;
 entry[2] = 0;
 entry[3] = 0;
 entry.writeUInt16LE(1, 4);
@@ -31,11 +32,11 @@ entry.writeUInt16LE(32, 6);
 entry.writeUInt32LE(dibSize, 8);
 entry.writeUInt32LE(fileOffset, 12);
 
-// DIB: BITMAPINFOHEADER 40 bytes
+// DIB header
 const dibHeader = Buffer.alloc(40);
 dibHeader.writeUInt32LE(40, 0);
-dibHeader.writeInt32LE(32, 4);
-dibHeader.writeInt32LE(64, 8);  // 32*2 for XOR + AND
+dibHeader.writeInt32LE(SIZE, 4);
+dibHeader.writeInt32LE(SIZE * 2, 8);
 dibHeader.writeUInt16LE(1, 12);
 dibHeader.writeUInt16LE(32, 14);
 dibHeader.writeUInt32LE(0, 16);
@@ -43,17 +44,19 @@ dibHeader.writeUInt32LE(xorSize + andSize, 20);
 dibHeader.writeInt32LE(0, 24);
 dibHeader.writeInt32LE(0, 28);
 
-// 32x32 32bpp pixels (BGRA, bottom-up). Einfaches blaues Quadrat auf weiß
-const pixels = Buffer.alloc(32 * 32 * 4);
-const blue = 0xE3;   // B
-const green = 0x6A;  // G
-const red = 0x0D;    // R (0d47a1)
+// 256x256 BGRA pixels (bottom-up): blauer Rand, weißer Innenbereich
+const pixels = Buffer.alloc(xorSize);
+const blue = 0xE3;
+const green = 0x6A;
+const red = 0x0D;
 const alpha = 0xFF;
-for (let y = 31; y >= 0; y--) {
-  for (let x = 0; x < 32; x++) {
-    const i = (31 - y) * 32 + x;
-    const o = i * 4;
-    const border = x < 2 || x >= 30 || y < 2 || y >= 30;
+const borderPx = 8;
+
+for (let y = SIZE - 1; y >= 0; y--) {
+  const rowStart = (SIZE - 1 - y) * SIZE * 4;
+  for (let x = 0; x < SIZE; x++) {
+    const border = x < borderPx || x >= SIZE - borderPx || y < borderPx || y >= SIZE - borderPx;
+    const o = rowStart + x * 4;
     if (border) {
       pixels[o] = blue;
       pixels[o + 1] = green;
@@ -68,10 +71,9 @@ for (let y = 31; y >= 0; y--) {
   }
 }
 
-// AND mask (1 bit per pixel, 0 = transparent): 32 rows, 4 bytes per row = 128 bytes, all 0
 const andMask = Buffer.alloc(andSize, 0);
 
 const dir = path.dirname(outPath);
 if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 fs.writeFileSync(outPath, Buffer.concat([header, entry, dibHeader, pixels, andMask]));
-console.log('Icon erstellt:', outPath);
+console.log('Icon erstellt (256x256):', outPath);
