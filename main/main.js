@@ -79,3 +79,6 @@ ipcMain.handle('ledger:export', async (_event, year) => {
   fs.writeFileSync(result.filePath, ledger.csv(year), 'utf8');
   return {ok:true,filePath:result.filePath};
 });
+
+const { yearlyReport } = require('./yearly-report');
+ipcMain.handle('ledger:year', (_event, year) => yearlyReport(ledger.list(), year));
