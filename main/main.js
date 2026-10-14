@@ -147,3 +147,11 @@ ipcMain.handle('einvoice:inspect',async()=>{
  if(selection.canceled||!selection.filePaths.length)return null;
  return require('./e-invoice').inspectEInvoiceFile(selection.filePaths[0]);
 });
+
+const bookingAssistant=require('./booking-assistant');
+const closingAssistant=require('./closing-assistant');
+ipcMain.handle('assistant:propose-document',(_event,doc)=>bookingAssistant.proposeDocument(doc));
+ipcMain.handle('assistant:recurring',()=>bookingAssistant.recurringSuggestions(doubleEntry.list()));
+ipcMain.handle('closing:month',(_event,year,month)=>closingAssistant.monthClose(doubleEntry,year,month));
+ipcMain.handle('closing:tax-bridge',(_event,year,adjustments)=>closingAssistant.taxReconciliation(doubleEntry,year,adjustments));
+ipcMain.handle('closing:depreciation',(_event,assets,year)=>closingAssistant.depreciationSchedule(assets,year));
