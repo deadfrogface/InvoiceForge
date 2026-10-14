@@ -10,5 +10,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  $('caMonthly').addEventListener('click',()=>run(()=>api.closingMonth(year(),month())));
  $('caTaxBridge').addEventListener('click',()=>run(()=>api.closingTaxBridge(year(),[])));
  $('caPropose').addEventListener('click',()=>run(()=>api.assistantProposeDocument(JSON.parse($('caDocument').value))));
+ $('caSaveAssets').addEventListener('click',()=>run(async()=>{const assets=JSON.parse($('caAssets').value);if(!Array.isArray(assets))throw Error('Anlagenliste muss ein Array sein');const result=[];for(const asset of assets)result.push(await api.assetsAdd(asset));return result;}));
+ $('caListAssets').addEventListener('click',()=>run(()=>api.assetsList()));
  $('caDepreciation').addEventListener('click',()=>run(()=>api.closingDepreciation(JSON.parse($('caAssets').value),year())));
 });
