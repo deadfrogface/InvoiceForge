@@ -279,3 +279,29 @@ label input:focus,label textarea:focus,label select:focus{outline:2px solid #b8c
 #bkMessage{min-height:20px;color:var(--muted)}
 #bookkeeping>p{color:var(--muted)}
 @media(max-width:700px){.container{padding:15px}.grid-2,.grid-3{grid-template-columns:1fr}.card{padding:17px}#bkReport details details{margin-left:0}}
+
+
+/* InvoiceForge dark workspace */
+:root{color-scheme:dark;--ink:#e9eefb;--muted:#a0acc3;--accent:#7895ff;--border:#303b52;--paper:#202a3b}
+body{background:#111827;color:var(--ink)}
+header h1,.card h2{color:#f4f7ff}
+.card{background:#1b2535;border-color:#303b52;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+label{color:#c0cbe0}
+label input,label textarea,label select{background:#141e2d;color:#f4f7ff;border-color:#3a4760}
+label input::placeholder,label textarea::placeholder{color:#8391a8}
+label input:focus,label textarea:focus,label select:focus{border-color:#7895ff;outline-color:#536dc4}
+.btn-primary{background:#5575e8;color:#fff}.btn-primary:hover{background:#6c89f5}
+.btn-secondary{background:#293c61;color:#d3e0ff}.btn-secondary:hover{background:#344c7b}
+#bkReport details{background:#202c40;border-color:#35445e}
+#bkReport details details{background:#172337}
+#bkReport td,#bkReport th{border-color:#35445e}
+#bkReport button{background:#283a5b;color:#e0e9ff;border-color:#445b83}
+#bkMessage,#bookkeeping>p{color:#aab8d0}
+#invoiceDetails>summary{color:#edf2ff}
+#positionsTable th{background:#25334a;color:#d4def0}
+#positionsTable td,#positionsTable th{border-color:#36445d}
+#positionsTable td input{background:#141e2d;color:#fff;border-color:#40506c}
+.btn-remove{background:#2a3548;color:#e7edfa;border-color:#42516b}
+.totals-row.total{border-color:#7895ff}
+.message.success{background:#163b34;color:#a4f1d1;border-color:#286753}
+.message.error{background:#47242b;color:#ffbec7;border-color:#773943}
