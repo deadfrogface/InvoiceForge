@@ -75,6 +75,13 @@ class Ledger {
     fs.appendFileSync(this.file, JSON.stringify(event) + '\n');
     return event;
   }
+  receiptPath(id) {
+    const entry = this.list().find(e => e.id === id);
+    if (!entry || !entry.receipt) return null;
+    const name = entry.receipt.filename;
+    if (!/^[a-f0-9]{64}\.(pdf|png|jpg|jpeg|webp|xml)$/.test(name)) throw Error('Invalid receipt');
+    return path.join(this.receipts, name);
+  }
   void(id, reason) {
     if (!this.list().some(e => e.id === id)) throw Error('Entry not found');
     if (typeof reason !== 'string' || !reason.trim()) throw Error('Correction reason required');
