@@ -12,3 +12,10 @@ test('offline document extraction reads plain text and refuses unsupported files
   assert.equal(typeof capabilities().tesseract,'boolean');
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('OCR never silently relies on tools installed outside InvoiceForge',()=>{
+ const {toolPath}=require('../main/document-extraction');
+ const original=process.resourcesPath;
+ assert.equal(typeof toolPath('pdftotext')==='string'||toolPath('pdftotext')===null,true);
+ assert.equal(capabilities().ericConfigured,false);
+});
