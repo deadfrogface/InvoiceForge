@@ -27,6 +27,8 @@ class Ledger {
     this.directory = directory;
     fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
     this.file = path.join(directory, 'ledger.jsonl');
+    this.receipts = path.join(directory, 'receipts');
+    fs.mkdirSync(this.receipts, {recursive:true});
   }
   events() {
     if (!fs.existsSync(this.file)) return [];
