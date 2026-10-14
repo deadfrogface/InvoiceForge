@@ -11,7 +11,8 @@ function preview(text) {
  if([date,description,amount].includes(-1))throw Error('CSV needs date, description and amount columns');
  return lines.map(line=>{
   const fields=line.split(delimiter);
-  const raw=fields[amount].trim().replace(/\./g,'').replace(',','.');
+  const valueText=fields[amount].trim();
+  const raw=valueText.includes(',')?valueText.replace(/\./g,'').replace(',','.'):valueText;
   const value=Number(raw);
   if(!Number.isFinite(value)||value===0)throw Error('Invalid amount');
   const d=fields[date].trim();
