@@ -65,3 +65,17 @@ ipcMain.handle('saveFile', async (_event, { content, defaultName }) => {
   fs.writeFileSync(filePath, buf);
   return { ok: true, filePath };
 });
+
+// Local bookkeeping: records remain on this device.
+const { Ledger } = require('./bookkeeping');
+const ledger = new Ledger(path.join(app.getPath('userData'), 'bookkeeping'));
+ipcMain.handle('ledger:add', (_event, input) => ledger.add(input));
+ipcMain.handle('ledger:list', () => ledger.list());
+ipcMain.handle('ledger:void', (_event, id, reason) => ledger.void(id, reason));
+ipcMain.handle('ledger:summary', (_event, year) => ledger.summary(year));
+ipcMain.handle('ledger:export', async (_event, year) => {
+  const result = await dialog.showSaveDialog({defaultPath:'invoiceforge-'+year+'.csv', filters:[{name:'CSV',extensions:['csv']}]});
+  if (result.canceled || !result.filePath) return {ok:false};
+  fs.writeFileSync(result.filePath, ledger.csv(year), 'utf8');
+  return {ok:true,filePath:result.filePath};
+});
