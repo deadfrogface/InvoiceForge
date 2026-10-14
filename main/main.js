@@ -61,7 +61,9 @@ ipcMain.handle('saveFile', async (_event, { content, defaultName }) => {
     filters: [{ name: 'PDF', extensions: ['pdf'] }],
   });
   if (canceled || !filePath) return { ok: false };
+  if (typeof content !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(content) || content.length > 40 * 1024 * 1024) throw Error('Ungültiger PDF-Inhalt');
   const buf = Buffer.from(content, 'base64');
+  if (buf.subarray(0,5).toString('ascii') !== '%PDF-') throw Error('Keine gültige PDF-Datei');
   fs.writeFileSync(filePath, buf);
   return { ok: true, filePath };
 });
