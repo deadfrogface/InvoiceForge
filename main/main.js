@@ -168,3 +168,6 @@ ipcMain.handle('documents:extract',async()=>{
  if(selected.canceled||!selected.filePaths.length)return null;
  return documentExtraction.readDocument(selected.filePaths[0]);
 });
+
+const taxTransmission=require('./tax-transmission');
+ipcMain.handle('tax:transmission-readiness',(_event,kind)=>taxTransmission.transmissionReadiness(kind));
