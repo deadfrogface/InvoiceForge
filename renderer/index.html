@@ -70,6 +70,9 @@
 <p id="mlMessage" role="status"></p>
 <textarea id="mlPreview" rows="16" readonly placeholder="Hier erscheint dein Vertragsentwurf"></textarea>
 <button id="mlSave" type="button" class="btn btn-secondary" disabled>Entwurf als TXT speichern</button>
+<button id="mlPdf" type="button" class="btn btn-secondary" disabled>Entwurf als PDF speichern</button>
+<button id="mlArchive" type="button" class="btn btn-secondary" disabled>Im Vertragsarchiv ablegen</button>
+<h3>Vertragsarchiv</h3><div id="mlArchiveList"></div>
 </details>
 <details class="card" id="invoiceDetails"><summary style="font-weight:700;cursor:pointer">Rechnung erstellen</summary>
 <section id="section-company">
@@ -138,6 +141,7 @@
   <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
   <script src="../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="app.js"></script>
-<script src="bookkeeping-ui.js"></script>\n<script src="music-license-ui.js"></script>
+<script src="bookkeeping-ui.js"></script>
+<script src="music-license-ui.js"></script>
 </body>
 </html>
