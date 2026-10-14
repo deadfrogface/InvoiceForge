@@ -70,7 +70,7 @@ class Ledger {
     const digest = crypto.createHash('sha256').update(data).digest('hex');
     const filename = digest + ext;
     const target = path.join(this.receipts, filename);
-    if (!fs.existsSync(target)) fs.writeFileSync(target, data, {flag:'wx'});
+    if (!fs.existsSync(target)) fs.writeFileSync(target, data, {flag:'wx',mode:0o600});
     const event = {action:'receipt', id:crypto.randomUUID(), target:id, filename, digest, recordedAt:new Date().toISOString()};
     fs.appendFileSync(this.file, JSON.stringify(event) + '\n');
     return event;
