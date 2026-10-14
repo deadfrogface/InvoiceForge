@@ -38,12 +38,14 @@ class Ledger {
   }
   list() {
     const active = new Map();
+    const receiptEvents = new Map();
     for (const e of this.events()) {
       if (e.action === 'add') active.set(e.id, e);
       else if (e.action === 'void') active.delete(e.target);
+      else if (e.action === 'receipt') receiptEvents.set(e.target, e);
       else throw Error('Unknown ledger event');
     }
-    return [...active.values()];
+    return [...active.values()].map(e => ({...e, receipt:receiptEvents.get(e.id) || null}));
   }
   add(input) {
     validate(input);
