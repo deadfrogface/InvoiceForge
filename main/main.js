@@ -82,3 +82,14 @@ ipcMain.handle('ledger:export', async (_event, year) => {
 
 const { yearlyReport } = require('./yearly-report');
 ipcMain.handle('ledger:year', (_event, year) => yearlyReport(ledger.list(), year));
+
+ipcMain.handle('ledger:receipt:add', async (_event, id) => {
+  const result = await dialog.showOpenDialog({properties:['openFile'],filters:[{name:'Belege',extensions:['pdf','png','jpg','jpeg','webp','xml']}]});
+  if (result.canceled || !result.filePaths.length) return {ok:false};
+  return {ok:true,receipt:ledger.attachReceipt(id,result.filePaths[0])};
+});
+ipcMain.handle('ledger:receipt:open', (_event,id) => {
+  const file=ledger.receiptPath(id);
+  if (!file || !fs.existsSync(file)) return false;
+  return require('electron').shell.openPath(file).then(message=>!message);
+});
