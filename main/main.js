@@ -111,3 +111,9 @@ ipcMain.handle('ledger:bank:preview',async()=>{
  if(selected.canceled)return null;
  return bankCsv.preview(fs.readFileSync(selected.filePaths[0],'utf8'));
 });
+
+const {InvoiceRegister}=require('./invoice-register');
+const invoiceRegister=new InvoiceRegister(path.join(app.getPath('userData'),'bookkeeping'));
+ipcMain.handle('invoices:list',()=>invoiceRegister.list());
+ipcMain.handle('invoices:add',(_event,input)=>invoiceRegister.add(input));
+ipcMain.handle('invoices:status',(_event,id,status)=>invoiceRegister.setStatus(id,status));
