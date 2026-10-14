@@ -99,6 +99,8 @@ ipcMain.handle('ledger:backup', async () => {
   if (result.canceled || !result.filePaths.length) return {ok:false};
   const destination=path.join(result.filePaths[0], 'InvoiceForge-Backup-'+new Date().toISOString().slice(0,10));
   if (fs.existsSync(destination)) throw Error('Backup folder already exists; choose another folder');
-  fs.cpSync(path.join(app.getPath('userData'),'bookkeeping'),destination,{recursive:true,errorOnExist:true,force:false});
+  const source=path.join(app.getPath('userData'),'bookkeeping');
+  if (destination===source || destination.startsWith(source+path.sep)) throw Error('Choose a folder outside bookkeeping data');
+  fs.cpSync(source,destination,{recursive:true,errorOnExist:true,force:false});
   return {ok:true,folder:destination};
 });
