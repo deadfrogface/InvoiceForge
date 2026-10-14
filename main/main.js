@@ -93,3 +93,12 @@ ipcMain.handle('ledger:receipt:open', (_event,id) => {
   if (!file || !fs.existsSync(file)) return false;
   return require('electron').shell.openPath(file).then(message=>!message);
 });
+
+ipcMain.handle('ledger:backup', async () => {
+  const result = await dialog.showOpenDialog({properties:['openDirectory','createDirectory']});
+  if (result.canceled || !result.filePaths.length) return {ok:false};
+  const destination=path.join(result.filePaths[0], 'InvoiceForge-Backup-'+new Date().toISOString().slice(0,10));
+  if (fs.existsSync(destination)) throw Error('Backup folder already exists; choose another folder');
+  fs.cpSync(path.join(app.getPath('userData'),'bookkeeping'),destination,{recursive:true,errorOnExist:true,force:false});
+  return {ok:true,folder:destination};
+});
