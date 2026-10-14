@@ -24,14 +24,17 @@ function validateJournal(x){
 class DoubleEntryLedger{
  constructor(directory){fs.mkdirSync(directory,{recursive:true,mode:0o700});this.file=path.join(directory,'double-entry.jsonl');}
  events(){return fs.existsSync(this.file)?fs.readFileSync(this.file,'utf8').split('\n').filter(Boolean).map(JSON.parse):[];}
+ verifyIntegrity(){let previous='GENESIS';const events=this.events();for(const event of events){if(event.previousHash!==previous)throw Error('Journal-Prüfkette unterbrochen');const {hash,...payload}=event;const expected=crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');if(hash!==expected)throw Error('Journal-Prüfsumme fehlerhaft');previous=hash;}return {ok:true,count:events.length,lastHash:previous};}
  list(){return this.events().filter(e=>e.action==='post');}
  post(input){
   validateJournal(input);
   const entry={action:'post',id:crypto.randomUUID(),date:input.date,description:input.description.trim(),reference:String(input.reference||'').slice(0,200),lines:input.lines.map(l=>({account:String(l.account),debitCents:l.debitCents,creditCents:l.creditCents})),recordedAt:new Date().toISOString()};
+  const state=this.verifyIntegrity();entry.previousHash=state.lastHash;entry.hash=crypto.createHash('sha256').update(JSON.stringify(entry)).digest('hex');
   fs.appendFileSync(this.file,JSON.stringify(entry)+'\n',{mode:0o600});return entry;
  }
  trialBalance(year){
   if(!Number.isInteger(year)||year<2000||year>2200)throw Error('Ungültiges Jahr');
+  this.verifyIntegrity();
   const accounts=Object.fromEntries(Object.entries(ACCOUNTS).map(([number,info])=>[number,{...info,number,debitCents:0,creditCents:0,balanceCents:0}]));
   for(const entry of this.list().filter(e=>e.date.slice(0,4)<=String(year)))for(const line of entry.lines){const a=accounts[line.account];a.debitCents+=line.debitCents;a.creditCents+=line.creditCents;}
   for(const a of Object.values(accounts))a.balanceCents=a.debitCents-a.creditCents;
