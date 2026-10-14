@@ -155,3 +155,8 @@ ipcMain.handle('assistant:recurring',()=>bookingAssistant.recurringSuggestions(d
 ipcMain.handle('closing:month',(_event,year,month)=>closingAssistant.monthClose(doubleEntry,year,month));
 ipcMain.handle('closing:tax-bridge',(_event,year,adjustments)=>closingAssistant.taxReconciliation(doubleEntry,year,adjustments));
 ipcMain.handle('closing:depreciation',(_event,assets,year)=>closingAssistant.depreciationSchedule(assets,year));
+
+const {AssetRegister}=require('./asset-register');
+const assetRegister=new AssetRegister(path.join(app.getPath('userData'),'bookkeeping'));
+ipcMain.handle('assets:list',()=>assetRegister.list());
+ipcMain.handle('assets:add',(_event,asset)=>assetRegister.add(asset));
