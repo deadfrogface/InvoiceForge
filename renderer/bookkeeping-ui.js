@@ -35,11 +35,16 @@
     for(const [cat,c] of Object.entries(g.categories)){
      const child=el('details');child.append(el('summary',cat+' · '+money(c.expenseCents)));
      const table=el('table'),head=el('tr');
-     for(const h of ['Datum','Ausgabe / Einnahme','Betrag','Anteil','Beleg','Prüfung'])head.append(el('th',h));
+     for(const h of ['Datum','Ausgabe / Einnahme','Betrag','Anteil','Beleg','Prüfung','Aktion'])head.append(el('th',h));
      table.append(head);
      for(const r of c.rows){
       const tr=el('tr');
       for(const v of [r.date,r.description,money(r.amountCents),r.businessPercent+' %',r.receipt?'Archiviert':r.documentReference||'Fehlt',r.needsReview?'Prüfen':'Erfasst'])tr.append(el('td',v));
+      const actions=el('td');
+      const btn=el('button',r.receipt?'Öffnen':'Anhängen');
+      btn.type='button';
+      btn.addEventListener('click',async()=>{try{if(r.receipt)await api.ledgerOpenReceipt(r.id);else {await api.ledgerAttach(r.id);await refresh();}}catch(e){showError(e);}});
+      actions.append(btn);tr.append(actions);
       table.append(tr);
      }
      child.append(table);parent.append(child);
