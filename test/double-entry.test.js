@@ -44,3 +44,18 @@ test('audit chain detects modification of an already posted journal',()=>{
   assert.throws(()=>ledger.statements(2026),/Prüfsumme/);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('reversals preserve history and locked years reject postings',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'invoiceforge-lock-'));
+ try{
+  const ledger=new DoubleEntryLedger(dir);
+  const entry=ledger.post({date:'2026-04-01',description:'Umsatz',lines:[{account:'1200',debitCents:100,creditCents:0},{account:'4000',debitCents:0,creditCents:100}]});
+  const reversal=ledger.reverse(entry.id,'2026-04-02','Fehlbuchung');
+  assert.equal(reversal.reversalOf,entry.id);
+  assert.equal(ledger.statements(2026).guv.profitCents,0);
+  assert.throws(()=>ledger.reverse(entry.id,'2026-04-03','Doppelt'),/Bereits storniert/);
+  ledger.lockYear(2026);
+  assert.throws(()=>ledger.post({date:'2026-05-01',description:'Spät',lines:entry.lines}),/gesperrt/);
+  assert.equal(ledger.verifyIntegrity().count,3);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
