@@ -104,3 +104,10 @@ ipcMain.handle('ledger:backup', async () => {
   fs.cpSync(source,destination,{recursive:true,errorOnExist:true,force:false});
   return {ok:true,folder:destination};
 });
+
+const bankCsv=require('./bank-csv');
+ipcMain.handle('ledger:bank:preview',async()=>{
+ const selected=await dialog.showOpenDialog({properties:['openFile']});
+ if(selected.canceled)return null;
+ return bankCsv.preview(fs.readFileSync(selected.filePaths[0],'utf8'));
+});
