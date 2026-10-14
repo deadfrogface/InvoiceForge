@@ -46,6 +46,31 @@
 <div id="bkReport"></div>
 <p><small>Ungeprüfte Belegsammlung. Keine Bilanz, GuV, E-Bilanz oder Steuererklärung.</small></p>
 </section>
+<details class="card" id="musicLicense"><summary style="font-weight:700;cursor:pointer">Dead Frog Face · Musiklizenzvertrag erstellen</summary>
+<p>Vertragsentwurf für Filmmusik. Vor Unterschrift rechtlich prüfen; keine automatische Zuordnung zur noch nicht gegründeten UG.</p>
+<form id="musicLicenseForm">
+<div class="grid grid-2">
+<label>Urheber <input id="mlAuthor" required></label>
+<label>Künstlername <input id="mlArtist" value="Dead Frog Face"></label>
+<label>Urheberanschrift <input id="mlAuthorAddress"></label>
+<label>Filmstudio / Lizenznehmer <input id="mlLicensee" required></label>
+<label>Lizenznehmeranschrift <input id="mlLicenseeAddress"></label>
+<label>Vertreten durch <input id="mlRepresentative"></label>
+<label>Filmprojekt <input id="mlProject" required></label>
+<label>Vergütung (€) <input id="mlFee" type="number" min="0" step="0.01" required></label>
+<label>Zahlungsfälligkeit <input id="mlDue" placeholder="z. B. 14 Tage nach Unterzeichnung"></label>
+<label>Gebiet <input id="mlTerritory" value="weltweit"></label>
+<label>Dauer <input id="mlTerm" value="zeitlich unbeschränkt"></label>
+</div>
+<label>Musikwerke (ein Titel oder Arbeitsname pro Zeile)<textarea id="mlTracks" rows="5" required></textarea></label>
+<label>Zusätzliche vereinbarte Nutzungsrechte (optional)<textarea id="mlRights" rows="2"></textarea></label>
+<label><input id="mlPaid" type="checkbox"> Vollständigen Zahlungseingang ausdrücklich bestätigen</label>
+<button class="btn btn-primary" type="submit">Vertragsentwurf erstellen</button>
+</form>
+<p id="mlMessage" role="status"></p>
+<textarea id="mlPreview" rows="16" readonly placeholder="Hier erscheint dein Vertragsentwurf"></textarea>
+<button id="mlSave" type="button" class="btn btn-secondary" disabled>Entwurf als TXT speichern</button>
+</details>
 <details class="card" id="invoiceDetails"><summary style="font-weight:700;cursor:pointer">Rechnung erstellen</summary>
 <section id="section-company">
       <h2>Firmendaten</h2>
@@ -113,6 +138,6 @@
   <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
   <script src="../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="app.js"></script>
-<script src="bookkeeping-ui.js"></script>
+<script src="bookkeeping-ui.js"></script>\n<script src="music-license-ui.js"></script>
 </body>
 </html>
