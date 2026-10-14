@@ -31,3 +31,16 @@ test('E-invoice inspection recognizes UBL and blocks DTD',()=>{
  assert.equal(result.format,'UBL');assert.equal(result.invoiceNumber,'R-42');assert.equal(result.valid,false);
  assert.throws(()=>inspectEInvoice('<!DOCTYPE x><Invoice/>'),/Entitäten/);
 });
+
+test('audit chain detects modification of an already posted journal',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'invoiceforge-integrity-'));
+ try{
+  const ledger=new DoubleEntryLedger(dir);
+  ledger.post({date:'2026-03-01',description:'Original',lines:[{account:'1200',debitCents:100,creditCents:0},{account:'4000',debitCents:0,creditCents:100}]});
+  assert.equal(ledger.verifyIntegrity().ok,true);
+  const file=path.join(dir,'double-entry.jsonl');
+  fs.writeFileSync(file,fs.readFileSync(file,'utf8').replace('Original','Manipuliert'));
+  assert.throws(()=>ledger.verifyIntegrity(),/Prüfsumme/);
+  assert.throws(()=>ledger.statements(2026),/Prüfsumme/);
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
