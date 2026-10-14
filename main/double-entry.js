@@ -58,11 +58,25 @@ class DoubleEntryLedger{
   const equityCents=equityBookedCents+priorResultsCents+profitCents;
   return {year,trialBalance:tb,guv:{revenueCents,expenseCents,profitCents},balanceSheet:{assetsCents,liabilitiesCents,equityCents,balances:assetsCents===liabilitiesCents+equityCents},disclaimer:'Vorläufige interne Auswertung ohne Abschlussbuchungen, Kontenabstimmung, Inventur, HGB-Anhang, E-Bilanz oder steuerliche Prüfung.'};
  }
+ preflight(year){
+  const entries=this.list().filter(e=>e.date.startsWith(String(year)));
+  const report=this.statements(year);
+  const issues=[];
+  if(!entries.length)issues.push({severity:'warning',code:'EMPTY',message:'Keine Journalbuchungen im Geschäftsjahr'});
+  for(const e of entries){
+   if(!e.reference.trim())issues.push({severity:'error',code:'MISSING_REFERENCE',entryId:e.id,message:'Belegreferenz fehlt'});
+   if(e.recordedAt.slice(0,10)<e.date)issues.push({severity:'warning',code:'FUTURE_BOOKING',entryId:e.id,message:'Buchungsdatum liegt nach Erfassungsdatum'});
+  }
+  if(!report.trialBalance.balanced||!report.balanceSheet.balances)issues.push({severity:'error',code:'IMBALANCE',message:'Summen- oder Saldenabgleich fehlgeschlagen'});
+  if(!this.lockedYears().has(year))issues.push({severity:'info',code:'OPEN_YEAR',message:'Geschäftsjahr noch nicht gesperrt'});
+  return {year,entries:entries.length,issues,technicallyBalanced:report.trialBalance.balanced&&report.balanceSheet.balances,readyForTaxFiling:false,explanation:'Automatischer Plausibilitätscheck. Keine Belegprüfung, Kontenabstimmung, steuerliche Prüfung oder Freigabe.'};
+ }
  taxClosing(year){
   const s=this.statements(year);
   const a=Object.fromEntries(s.trialBalance.accounts.map(x=>[x.number,x]));
   const inputCents=a['1576'].balanceCents,outputCents=-a['1776'].balanceCents;
-  return {year,profitBeforeTaxCents:s.guv.profitCents,inputVatCents:inputCents,outputVatCents:outputCents,estimatedVatPayableCents:outputCents-inputCents,readyForFiling:false,missing:['Steuerliche Überleitungsrechnung','Abschluss- und Abgrenzungsbuchungen','Anlagenverzeichnis und Abschreibungen','Kontenabstimmung','Steuerliche Prüfung','E-Bilanz/XBRL-Export','Elektronische Übermittlung'],disclaimer:'Keine Steuerberechnung oder Steuererklärung. Umsatzsteuerwerte sind reine Kontensalden, keine UStVA.'};
+  const preflight=this.preflight(year);
+  return {year,preflight,profitBeforeTaxCents:s.guv.profitCents,inputVatCents:inputCents,outputVatCents:outputCents,estimatedVatPayableCents:outputCents-inputCents,readyForFiling:false,missing:['Steuerliche Überleitungsrechnung','Abschluss- und Abgrenzungsbuchungen','Anlagenverzeichnis und Abschreibungen','Kontenabstimmung','Steuerliche Prüfung','E-Bilanz/XBRL-Export','Elektronische Übermittlung'],disclaimer:'Keine Steuerberechnung oder Steuererklärung. Umsatzsteuerwerte sind reine Kontensalden, keine UStVA.'};
  }
 }
 module.exports={DoubleEntryLedger,ACCOUNTS,validateJournal};
