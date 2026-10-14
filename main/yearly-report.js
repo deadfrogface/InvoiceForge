@@ -24,8 +24,8 @@ function yearlyReport(entries, year) {
       id:e.id,date:e.date,project:clean(e.project)||'Nicht zugeordnet',
       group,category,description:e.description,amountCents:e.amountCents,
       businessPercent:e.businessPercent,potentialBusinessCents:e.type==='expense'?Math.round(e.amountCents*e.businessPercent/100):e.amountCents,
-      type:e.type,paymentSource:e.paymentSource,documentReference:e.documentReference||'',
-      needsReview:!e.documentReference||!e.category||!e.project||e.taxReviewRequired===true
+      type:e.type,paymentSource:e.paymentSource,documentReference:e.documentReference||'',receipt:e.receipt||null,
+      needsReview:!e.receipt||!e.category||!e.project||e.taxReviewRequired===true
     };
   }).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
   const projects = {};
