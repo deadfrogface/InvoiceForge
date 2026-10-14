@@ -1,6 +1,7 @@
 'use strict';
 const crypto=require('node:crypto');
 const {ACCOUNTS}=require('./double-entry');
+const {validateJournal}=require('./double-entry');
 function moneyCents(raw){
  const text=String(raw??'').trim().replace(/\s/g,'');
  const normalized=text.includes(',')?text.replace(/\./g,'').replace(',','.'):text;
@@ -12,7 +13,7 @@ function moneyCents(raw){
 function proposeDocument(doc,history=[]){
  if(!doc||typeof doc!=='object')throw Error('Beleg fehlt');
  const date=String(doc.issueDate||'');
- const year=/^\d{4}-\d{2}-\d{2}$/.test(date)?Number(date.slice(0,4)):null;
+ const year=/^\d{4}-\d{2}-\d{2}$/.test(date)&&!Number.isNaN(Date.parse(date))&&new Date(date).toISOString().slice(0,10)===date?Number(date.slice(0,4)):null;
  const grossCents=moneyCents(doc.payableAmount);
  const issues=[];
  if(!year)issues.push('Rechnungsdatum fehlt oder ist ungültig');
@@ -24,10 +25,12 @@ function proposeDocument(doc,history=[]){
  const netCents=grossCents===null?null:Math.round(grossCents/1.19);
  const vatCents=grossCents===null?null:grossCents-netCents;
  const direction=doc.direction==='outgoing'?'outgoing':'incoming';
- const lines=grossCents===null?[]:direction==='incoming'
+ const lines=grossCents===null||grossCents===0?[]:direction==='incoming'
   ?[{account:'6300',debitCents:netCents,creditCents:0},{account:'1576',debitCents:vatCents,creditCents:0},{account:'1600',debitCents:0,creditCents:grossCents}]
   :[{account:'1400',debitCents:grossCents,creditCents:0},{account:'4000',debitCents:0,creditCents:netCents},{account:'1776',debitCents:0,creditCents:vatCents}];
  issues.push('Steuersatz 19 % und Vorsteuerabzug nicht bestätigt; Kontierung ist nur ein Vorschlag');
+ if(grossCents!==null&&grossCents>0&&lines.length){try{validateJournal({date:year?date:'2026-01-01',description:'Buchungsvorschlag',lines});}catch(error){issues.push('Buchungsvorschlag rechnerisch ungültig: '+error.message);lines.length=0;}}
+ if(!year||!doc.invoiceNumber||doc.currency!=='EUR')lines.length=0;
  if(doc.format==='CII / ZUGFeRD-XML'||doc.valid===false)issues.push('E-Rechnung noch nicht gegen EN16931/XRechnung validiert');
  return {fingerprint,year,period:date.slice(0,7),direction,lines,reference:String(doc.invoiceNumber||''),grossCents,vatCents,issues,requiresApproval:true,automaticPosting:false};
 }
