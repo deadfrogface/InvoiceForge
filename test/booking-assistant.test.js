@@ -4,7 +4,7 @@ const {proposeDocument,recurringSuggestions,moneyCents}=require('../main/booking
 const {monthClose,taxReconciliation,depreciationSchedule}=require('../main/closing-assistant');
 const {DoubleEntryLedger}=require('../main/double-entry');
 test('invoice suggestions never auto-post, flag tax review and assign fiscal year',()=>{
- const doc={invoiceNumber:'R-1',issueDate:'2026-10-14',payableAmount:'119,00',currency:'EUR',valid:false};
+ const doc={invoiceNumber:'R-1',issueDate:'2026-10-14',payableAmount:'119,00',currency:'EUR',taxRate:19,valid:false};
  const p=proposeDocument(doc);
  assert.equal(p.year,2026);assert.equal(p.grossCents,11900);assert.equal(p.vatCents,1900);
  assert.equal(p.requiresApproval,true);assert.equal(p.automaticPosting,false);
@@ -30,10 +30,19 @@ test('monthly review, tax bridge and depreciation remain provisional',()=>{
 });
 
 test('incomplete or invalid invoice metadata must not produce postable lines',()=>{
- const base={invoiceNumber:'R-1',issueDate:'2026-10-14',payableAmount:'119.00',currency:'EUR'};
+ const base={invoiceNumber:'R-1',issueDate:'2026-10-14',payableAmount:'119.00',currency:'EUR',taxRate:19};
  assert.equal(proposeDocument({...base,issueDate:'2026-02-30'}).lines.length,0);
  assert.equal(proposeDocument({...base,currency:'USD'}).lines.length,0);
  assert.equal(proposeDocument({...base,invoiceNumber:''}).lines.length,0);
  assert.equal(proposeDocument({...base,payableAmount:'0.00'}).lines.length,0);
  assert.equal(proposeDocument(base).lines.length,3);
+});
+
+test('unconfirmed VAT never produces bookable entries',()=>{
+ const doc={invoiceNumber:'R-2',issueDate:'2026-10-14',payableAmount:'119.00',currency:'EUR'};
+ const p=proposeDocument(doc);
+ assert.equal(p.lines.length,0);
+ assert.equal(p.vatCents,null);
+ assert.ok(p.issues.some(x=>x.includes('Steuersatz')));
+ assert.equal(proposeDocument({...doc,taxRate:7}).lines.length,0);
 });
