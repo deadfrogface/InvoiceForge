@@ -10,7 +10,8 @@ function runLocal(name,args,timeout=30000){
 function readDocument(filename){
  const ext=path.extname(filename).toLowerCase();
  if(!['.pdf','.png','.jpg','.jpeg','.tif','.tiff','.webp','.txt','.xml'].includes(ext))throw Error('Dateityp nicht unterstützt');
- const stat=fs.statSync(filename);
+ const stat=fs.lstatSync(filename);
+ if(stat.isSymbolicLink())throw Error('Symbolische Verknüpfungen werden nicht importiert');
  if(!stat.isFile()||stat.size>25*1024*1024)throw Error('Beleg zu groß oder keine Datei');
  if(ext==='.xml')return {source:'xml',...require('./e-invoice').inspectEInvoiceFile(filename)};
  if(ext==='.txt')return {source:'text',text:fs.readFileSync(filename,'utf8').slice(0,200000),requiresReview:true};
@@ -22,7 +23,7 @@ function readDocument(filename){
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'invoiceforge-ocr-'));
   try{
    const output=path.join(temp,'ocr.pdf');
-   runLocal('ocrmypdf',['--skip-text','--language','deu+eng',filename,output],120000);
+   runLocal('ocrmypdf',['--skip-text','--language','deu+eng','--jobs','1','--tesseract-timeout','90',filename,output],120000);
    text=runLocal('pdftotext',['-layout',output,'-'],30000);
    return {source:'ocrmypdf',text:text.slice(0,200000),requiresReview:true};
   }finally{fs.rmSync(temp,{recursive:true,force:true});}
