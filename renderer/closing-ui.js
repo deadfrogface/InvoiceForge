@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   catch(e){$('caMessage').textContent='Fehler: '+e.message;}
  };
  const year=()=>Number($('caYear').value),month=()=>Number($('caMonth').value);
+ $('caExtract').addEventListener('click',()=>run(()=>api.documentExtract()));
+ $('caCapabilities').addEventListener('click',()=>run(()=>api.documentCapabilities()));
  $('caRecurring').addEventListener('click',()=>run(()=>api.assistantRecurring()));
  $('caMonthly').addEventListener('click',()=>run(()=>api.closingMonth(year(),month())));
  $('caTaxBridge').addEventListener('click',()=>run(()=>api.closingTaxBridge(year(),[])));
