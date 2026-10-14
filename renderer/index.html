@@ -9,15 +9,112 @@
 <body>
   <div class="container">
     <header>
-      <h1>InvoiceForge</h1>
+      <h1>InvoiceForge <small style="font-size:13px;font-weight:500;color:#64748b">· Rechnungen & Buchhaltung</small></h1>
     </header>
 
     <div id="messageBar" class="message hidden"></div>
 
-    <section class="card" id="section-company">
+    <section class="card" id="bookkeeping">
+<h2>UG-Gründung vorbereiten</h2>
+<p>Deine UG ist noch nicht gegründet. Hier sammelst du zunächst Belege und mögliche Gründungskosten. Das ist keine Buchhaltung der eingetragenen UG. Eine steuerliche Zuordnung erfolgt erst nach Prüfung.</p>
+<form id="bkForm">
+<div class="grid grid-3">
+<label>Datum <input id="bkDate" type="date" required></label>
+<label>Art <select id="bkType"><option value="expense">Ausgabe</option><option value="income">Einnahme</option></select></label>
+<label>Betrag (€) <input id="bkAmount" type="number" min="0.01" step="0.01" required></label>
+</div>
+<label>Ausgabe / Einnahme <input id="bkDescription" maxlength="500" required></label>
+<div class="grid grid-3">
+<label>Projekt <input id="bkProject" placeholder="KarriereKrake"></label>
+<label>Überkategorie <select id="bkGroup"></select></label>
+<label>Unterkategorie <select id="bkCategory"></select></label>
+</div>
+<div class="grid grid-3">
+<label>Zahlung <select id="bkPayment"><option value="private">Privatkonto</option><option value="business">Geschäftskonto</option><option value="cash">Bar</option><option value="other">Sonstiges</option></select></label>
+<label>Geschäftlicher Anteil (%) <input id="bkShare" type="number" min="0" max="100" value="100" required></label>
+<label>Belegreferenz <input id="bkReceipt" placeholder="Belegnummer / Dateiname"></label>
+</div>
+<button class="btn btn-primary" type="submit">Speichern</button>
+</form>
+<p id="bkMessage" role="status"></p>
+<h2>Belegübersicht zur Gründungsvorbereitung</h2>
+<div class="grid grid-3"><label>Jahr <input id="bkYear" type="number" min="2000" max="2200"></label>
+<button id="bkView" type="button" class="btn btn-secondary">Jahresübersicht anzeigen</button>
+<button id="bkExport" type="button" class="btn btn-secondary">CSV exportieren</button>
+<button id="bkBackup" type="button" class="btn btn-secondary">Backup erstellen</button>
+<button id="bkBank" type="button" class="btn btn-secondary">Bank-CSV prüfen</button></div>
+<div id="bkReport"></div>
+<p><small>Ungeprüfte Belegsammlung. Keine Bilanz, GuV, E-Bilanz oder Steuererklärung.</small></p>
+</section>
+<details class="card" id="closingAssistant"><summary style="font-weight:700;cursor:pointer">Buchungsassistent · Monatsabschluss · Anlagen · Steuerüberleitung</summary>
+<p>Alle Vorschläge müssen vor der Buchung bestätigt werden. Die Auswertungen ersetzen keine Steuererklärung.</p>
+<div class="grid grid-3"><label>Jahr <input id="caYear" type="number" min="2000" max="2200" value="2026"></label><label>Monat <input id="caMonth" type="number" min="1" max="12" value="10"></label></div>
+<div class="grid grid-3"><button type="button" id="caRecurring">Wiederkehrende Buchungen suchen</button><button type="button" id="caMonthly">Monat prüfen</button><button type="button" id="caTaxBridge">Steuerüberleitung anzeigen</button><button type="button" id="caAnnual">Jahresabschluss prüfen</button></div>
+<h3>Beleg lokal auslesen (PDF, Bild, XML)</h3><button type="button" id="caExtract">Beleg öffnen und auslesen</button><button type="button" id="caCapabilities">OCR-Werkzeuge prüfen</button><h3>Belegdaten prüfen</h3><textarea id="caDocument" rows="4" placeholder='{"invoiceNumber":"R-123","issueDate":"2026-10-14","payableAmount":"119,00","currency":"EUR"}'></textarea><button type="button" id="caPropose">Buchung vorschlagen</button>
+<h3>Anlagenverzeichnis (vorläufig)</h3><textarea id="caAssets" rows="3" placeholder='[{"name":"Laptop","acquired":"2026-01-01","costCents":120000,"usefulLifeYears":3}]'></textarea><button type="button" id="caDepreciation">Abschreibung berechnen</button><button type="button" id="caSaveAssets">Anlagen dauerhaft erfassen</button><button type="button" id="caListAssets">Anlagen anzeigen</button>
+<p id="caMessage" role="status"></p><pre id="caOutput" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+</details>
+<details class="card" id="doubleEntry"><summary style="font-weight:700;cursor:pointer">Doppelte Buchführung · Bilanz · GuV</summary>
+<p>Separates lokales Journal für eine eingetragene Gesellschaft. Nicht automatisch mit der vorläufigen Belegsammlung synchronisiert.</p>
+<form id="deForm">
+<div class="grid grid-3"><label>Datum <input type="date" id="deDate" required></label><label>Buchungstext <input id="deDescription" required></label><label>Belegreferenz <input id="deReference"></label></div>
+<p>Buchungszeilen: Konto;Soll in Euro;Haben in Euro (eine Zeile pro Konto)</p>
+<textarea id="deLines" rows="5" placeholder="1200;100;0&#10;4000;0;100" required></textarea>
+<button type="submit" class="btn btn-primary">Ausgeglichene Buchung speichern</button>
+</form>
+<div class="grid grid-3"><label>Geschäftsjahr <input id="deYear" type="number" min="2000" max="2200" value="2026"></label><button id="deReport" type="button" class="btn btn-secondary">Bilanz und GuV</button><button id="deTax" type="button" class="btn btn-secondary">Steuerlicher Abschlussstatus</button><button id="deXml" type="button" class="btn btn-secondary">E-Rechnung XML prüfen</button></div>
+<p id="deMessage" role="status"></p><pre id="deOutput" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+</details>
+<details class="card" id="invoiceRegister"><summary style="font-weight:700;cursor:pointer">Rechnungseingang und Rechnungsausgang verwalten</summary>
+<p>Lokales Rechnungsregister. Rechnungen werden nicht automatisch als bezahlt oder steuerlich gebucht markiert. Vor Gründung keine Rechnung im Namen der künftigen UG ausstellen.</p>
+<form id="irForm">
+<div class="grid grid-3">
+<label>Richtung <select id="irDirection"><option value="incoming">Eingangsrechnung</option><option value="outgoing">Ausgangsrechnung</option></select></label>
+<label>Phase <select id="irPhase"><option value="preformation">Vor Gründung</option><option value="registered">UG eingetragen</option></select></label>
+<label>Rechnungsnummer <input id="irNumber" required maxlength="200"></label>
+<label>Rechnungspartner <input id="irCounterparty" required maxlength="200"></label>
+<label>Rechnungsdatum <input id="irDate" type="date" required></label>
+<label>Fälligkeitsdatum <input id="irDue" type="date"></label>
+<label>Brutto (€) <input id="irGross" type="number" min="0.01" step="0.01" required></label>
+</div>
+<label>Notiz / Vertragsreferenz <input id="irNote" maxlength="500"></label>
+<button type="submit" class="btn btn-primary">Rechnung registrieren</button>
+</form>
+<p id="irMessage" role="status"></p><div id="irList"></div>
+</details>
+<details class="card" id="musicLicense"><summary style="font-weight:700;cursor:pointer">Dead Frog Face · Musiklizenzvertrag erstellen</summary>
+<p>Vertragsentwurf für Filmmusik. Vor Unterschrift rechtlich prüfen; keine automatische Zuordnung zur noch nicht gegründeten UG.</p>
+<form id="musicLicenseForm">
+<div class="grid grid-2">
+<label>Urheber <input id="mlAuthor" required></label>
+<label>Künstlername <input id="mlArtist" value="Dead Frog Face"></label>
+<label>Urheberanschrift <input id="mlAuthorAddress"></label>
+<label>Filmstudio / Lizenznehmer <input id="mlLicensee" required></label>
+<label>Lizenznehmeranschrift <input id="mlLicenseeAddress"></label>
+<label>Vertreten durch <input id="mlRepresentative"></label>
+<label>Filmprojekt <input id="mlProject" required></label>
+<label>Vergütung (€) <input id="mlFee" type="number" min="0" step="0.01" required></label>
+<label>Zahlungsfälligkeit <input id="mlDue" placeholder="z. B. 14 Tage nach Unterzeichnung"></label>
+<label>Gebiet <input id="mlTerritory" value="weltweit"></label>
+<label>Dauer <input id="mlTerm" value="zeitlich unbeschränkt"></label>
+</div>
+<label>Musikwerke (ein Titel oder Arbeitsname pro Zeile)<textarea id="mlTracks" rows="5" required></textarea></label>
+<label>Zusätzliche vereinbarte Nutzungsrechte (optional)<textarea id="mlRights" rows="2"></textarea></label>
+<label><input id="mlPaid" type="checkbox"> Vollständigen Zahlungseingang ausdrücklich bestätigen</label>
+<button class="btn btn-primary" type="submit">Vertragsentwurf erstellen</button>
+</form>
+<p id="mlMessage" role="status"></p>
+<textarea id="mlPreview" rows="16" readonly placeholder="Hier erscheint dein Vertragsentwurf"></textarea>
+<button id="mlSave" type="button" class="btn btn-secondary" disabled>Entwurf als TXT speichern</button>
+<button id="mlPdf" type="button" class="btn btn-secondary" disabled>Entwurf als PDF speichern</button>
+<button id="mlArchive" type="button" class="btn btn-secondary" disabled>Im Vertragsarchiv ablegen</button>
+<h3>Vertragsarchiv</h3><div id="mlArchiveList"></div>
+</details>
+<details class="card" id="invoiceDetails"><summary style="font-weight:700;cursor:pointer">Rechnung erstellen</summary>
+<section id="section-company">
       <h2>Firmendaten</h2>
       <div class="grid grid-2">
-        <label>Firmenname <input type="text" id="companyName" placeholder="Meine Firma GmbH"></label>
+        <label>Firmenname <input type="text" id="companyName" placeholder="Deine UG (haftungsbeschränkt) – nach Gründung"></label>
         <label>Steuersatz (%) <input type="number" id="taxRate" value="19" min="0" step="0.01"></label>
       </div>
       <label>Adresse <textarea id="companyAddress" rows="2" placeholder="Straße 1&#10;PLZ Ort"></textarea></label>
@@ -74,10 +171,16 @@
     <footer class="actions">
       <button type="button" class="btn btn-primary" id="btnCreatePdf">PDF erstellen</button>
     </footer>
+  </details>
   </div>
 
   <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
   <script src="../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="app.js"></script>
+<script src="bookkeeping-ui.js"></script>
+<script src="music-license-ui.js"></script>
+<script src="invoice-register-ui.js"></script>
+<script src="double-entry-ui.js"></script>
+<script src="closing-ui.js"></script>
 </body>
 </html>

@@ -253,3 +253,55 @@ textarea {
   color: #1b5e20;
   border-color: #c8e6c9;
 }
+
+
+/* Calm, lightweight desktop workspace */
+:root{color-scheme:light;--ink:#17243b;--muted:#62738c;--accent:#3659d9;--border:#e5eaf2;--paper:#fff}
+body{background:#f5f7fb;color:var(--ink);font-size:15px}
+.container{max-width:1100px;padding:30px 32px 70px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+header h1{font-size:1.8rem;letter-spacing:-.04em;color:var(--ink)}
+.card{border:1px solid var(--border);border-radius:16px;box-shadow:0 5px 22px rgba(25,45,80,.035);padding:24px;margin-bottom:18px}
+.card h2{color:var(--ink);border:0;padding:0;margin:0 0 14px;font-size:1.2rem;letter-spacing:-.02em}
+label{font-weight:550;color:#45546a}
+label input,label textarea,label select{display:block;width:100%;margin-top:7px;padding:11px 12px;border:1px solid #d8e0eb;border-radius:9px;background:white;color:var(--ink);font:inherit}
+label input:focus,label textarea:focus,label select:focus{outline:2px solid #b8c7ff;outline-offset:1px;border-color:var(--accent)}
+.grid{gap:15px}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.btn{border-radius:10px;padding:11px 16px;transition:background .12s}
+.btn-primary{background:var(--accent)}.btn-primary:hover{background:#2848ba}
+.btn-secondary{background:#eef2ff;color:#2947ad}.btn-secondary:hover{background:#dfe7ff}
+#bkReport details{border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:9px 0;background:#fff}
+#bkReport details details{background:#f9fbff;margin-left:12px}
+#bkReport summary{cursor:pointer;font-weight:650;padding:5px}
+#bkReport table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}
+#bkReport td,#bkReport th{padding:10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+#bkReport button{border:1px solid #d7e0f3;background:white;color:#3154bc;border-radius:7px;padding:7px 11px;cursor:pointer}
+#bkMessage{min-height:20px;color:var(--muted)}
+#bookkeeping>p{color:var(--muted)}
+@media(max-width:700px){.container{padding:15px}.grid-2,.grid-3{grid-template-columns:1fr}.card{padding:17px}#bkReport details details{margin-left:0}}
+
+
+/* InvoiceForge dark workspace */
+:root{color-scheme:dark;--ink:#e9eefb;--muted:#a0acc3;--accent:#7895ff;--border:#303b52;--paper:#202a3b}
+body{background:#111827;color:var(--ink)}
+header h1,.card h2{color:#f4f7ff}
+.card{background:#1b2535;border-color:#303b52;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+label{color:#c0cbe0}
+label input,label textarea,label select{background:#141e2d;color:#f4f7ff;border-color:#3a4760}
+label input::placeholder,label textarea::placeholder{color:#8391a8}
+label input:focus,label textarea:focus,label select:focus{border-color:#7895ff;outline-color:#536dc4}
+.btn-primary{background:#5575e8;color:#fff}.btn-primary:hover{background:#6c89f5}
+.btn-secondary{background:#293c61;color:#d3e0ff}.btn-secondary:hover{background:#344c7b}
+#bkReport details{background:#202c40;border-color:#35445e}
+#bkReport details details{background:#172337}
+#bkReport td,#bkReport th{border-color:#35445e}
+#bkReport button{background:#283a5b;color:#e0e9ff;border-color:#445b83}
+#bkMessage,#bookkeeping>p{color:#aab8d0}
+#invoiceDetails>summary{color:#edf2ff}
+#positionsTable th{background:#25334a;color:#d4def0}
+#positionsTable td,#positionsTable th{border-color:#36445d}
+#positionsTable td input{background:#141e2d;color:#fff;border-color:#40506c}
+.btn-remove{background:#2a3548;color:#e7edfa;border-color:#42516b}
+.totals-row.total{border-color:#7895ff}
+.message.success{background:#163b34;color:#a4f1d1;border-color:#286753}
+.message.error{background:#47242b;color:#ffbec7;border-color:#773943}
