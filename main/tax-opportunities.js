@@ -9,7 +9,7 @@ const RULES={
 };
 function assessExpense(entry){
  if(!entry||entry.type!=='expense')return {status:'not-applicable',title:'Keine Ausgabe',requirements:[]};
- const category=String(entry.category||'').split(' / ').pop();
+ const category=String(entry.category||'').replace(/^.*? \/ /,'');
  const description=String(entry.description||'').toLowerCase();
  let rule=RULES[category]||{status:'review',title:'Steuerliche Einordnung offen',requirements:['Betrieblichen Anlass und Beleg prüfen']};
  if(/anzug|anzüge|kleidung|outfit|kostüm|uniform/.test(description))
