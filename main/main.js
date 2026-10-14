@@ -117,3 +117,12 @@ const invoiceRegister=new InvoiceRegister(path.join(app.getPath('userData'),'boo
 ipcMain.handle('invoices:list',()=>invoiceRegister.list());
 ipcMain.handle('invoices:add',(_event,input)=>invoiceRegister.add(input));
 ipcMain.handle('invoices:status',(_event,id,status)=>invoiceRegister.setStatus(id,status));
+
+const {buildMusicLicense}=require('./music-license');
+ipcMain.handle('music:license:generate',(_event,input)=>buildMusicLicense(input));
+ipcMain.handle('music:license:save',async(_event,content)=>{
+ if(typeof content!=='string'||content.length>100000)throw Error('Ungültiger Vertragsinhalt');
+ const result=await dialog.showSaveDialog({defaultPath:'Musiklizenzvertrag.txt',filters:[{name:'Textdokument',extensions:['txt']}]});
+ if(result.canceled||!result.filePath)return {ok:false};
+ fs.writeFileSync(result.filePath,content,'utf8');return {ok:true,filePath:result.filePath};
+});
