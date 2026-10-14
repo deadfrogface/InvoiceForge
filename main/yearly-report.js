@@ -1,8 +1,9 @@
 'use strict';
+const {assessExpense}=require('./tax-opportunities');
 const GROUPS = {
   'Software': ['Entwicklungskosten','Allgemeine Softwarekosten','KI / Programmierung','Lizenzen / Abonnements'],
   'Hardware': ['Computer / Laptop','Zubehör / Upgrades','Testgeräte'],
-  'Betriebskosten': ['Strom','Internet / Telefon','Bürobedarf','Fahrtkosten'],
+  'Betriebskosten': ['Strom','Internet / Telefon','Bürobedarf','Fahrtkosten','Arbeitskleidung'],
   'Vertrieb & Marketing': ['Werbung','Domains / Hosting','Verkaufsgebühren'],
   'Sonstiges': ['Gründungskosten','Weitere Kosten','Ungeklärt']
 };
@@ -25,7 +26,7 @@ function yearlyReport(entries, year) {
       group,category,description:e.description,amountCents:e.amountCents,
       businessPercent:e.businessPercent,potentialBusinessCents:e.type==='expense'?Math.round(e.amountCents*e.businessPercent/100):e.amountCents,
       type:e.type,paymentSource:e.paymentSource,documentReference:e.documentReference||'',receipt:e.receipt||null,
-      needsReview:!e.receipt||!e.category||!e.project||e.taxReviewRequired===true
+      taxOpportunity:assessExpense(e),needsReview:!e.receipt||!e.category||!e.project||e.taxReviewRequired===true
     };
   }).sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
   const projects = {};
