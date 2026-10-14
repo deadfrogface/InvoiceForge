@@ -126,3 +126,9 @@ ipcMain.handle('music:license:save',async(_event,content)=>{
  if(result.canceled||!result.filePath)return {ok:false};
  fs.writeFileSync(result.filePath,content,'utf8');return {ok:true,filePath:result.filePath};
 });
+
+const {MusicLicenseArchive}=require('./music-license-archive');
+const musicArchive=new MusicLicenseArchive(path.join(app.getPath('userData'),'bookkeeping'));
+ipcMain.handle('music:archive:list',()=>musicArchive.list());
+ipcMain.handle('music:archive:add',(_event,draft)=>musicArchive.add(draft));
+ipcMain.handle('music:archive:status',(_event,id,status)=>musicArchive.setStatus(id,status));
