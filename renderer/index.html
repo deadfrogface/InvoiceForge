@@ -50,7 +50,7 @@
 <p>Alle Vorschläge müssen vor der Buchung bestätigt werden. Die Auswertungen ersetzen keine Steuererklärung.</p>
 <div class="grid grid-3"><label>Jahr <input id="caYear" type="number" min="2000" max="2200" value="2026"></label><label>Monat <input id="caMonth" type="number" min="1" max="12" value="10"></label></div>
 <div class="grid grid-3"><button type="button" id="caRecurring">Wiederkehrende Buchungen suchen</button><button type="button" id="caMonthly">Monat prüfen</button><button type="button" id="caTaxBridge">Steuerüberleitung anzeigen</button></div>
-<h3>Belegdaten prüfen</h3><textarea id="caDocument" rows="4" placeholder='{"invoiceNumber":"R-123","issueDate":"2026-10-14","payableAmount":"119,00","currency":"EUR"}'></textarea><button type="button" id="caPropose">Buchung vorschlagen</button>
+<h3>Beleg lokal auslesen (PDF, Bild, XML)</h3><button type="button" id="caExtract">Beleg öffnen und auslesen</button><button type="button" id="caCapabilities">OCR-Werkzeuge prüfen</button><h3>Belegdaten prüfen</h3><textarea id="caDocument" rows="4" placeholder='{"invoiceNumber":"R-123","issueDate":"2026-10-14","payableAmount":"119,00","currency":"EUR"}'></textarea><button type="button" id="caPropose">Buchung vorschlagen</button>
 <h3>Anlagenverzeichnis (vorläufig)</h3><textarea id="caAssets" rows="3" placeholder='[{"name":"Laptop","acquired":"2026-01-01","costCents":120000,"usefulLifeYears":3}]'></textarea><button type="button" id="caDepreciation">Abschreibung berechnen</button><button type="button" id="caSaveAssets">Anlagen dauerhaft erfassen</button><button type="button" id="caListAssets">Anlagen anzeigen</button>
 <p id="caMessage" role="status"></p><pre id="caOutput" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
 </details>
