@@ -75,6 +75,7 @@
    }catch(e){showError(e);}
   });
   $('bkView').addEventListener('click',()=>refresh().catch(showError));
+  $('bkBackup').addEventListener('click',async()=>{try{const result=await api.ledgerBackup();$('bkMessage').textContent=result.ok?'Backup erstellt: '+result.folder:'Backup abgebrochen';}catch(e){showError(e);}});
   $('bkExport').addEventListener('click',async()=>{try{const r=await api.ledgerExport(Number($('bkYear').value));$('bkMessage').textContent=r.ok?'CSV gespeichert':'Export abgebrochen';}catch(e){showError(e);}});
   refresh().catch(showError);
  });
