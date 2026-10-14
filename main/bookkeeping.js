@@ -60,6 +60,21 @@ class Ledger {
     fs.appendFileSync(this.file, JSON.stringify(entry)+'\n', { encoding: 'utf8', mode: 0o600 });
     return entry;
   }
+  attachReceipt(id, source) {
+    if (!this.list().some(e => e.id === id)) throw Error('Unknown booking');
+    const stat = fs.statSync(source);
+    if (!stat.isFile() || stat.size > 25 * 1024 * 1024) throw Error('Invalid file size');
+    const ext = path.extname(source).toLowerCase();
+    if (!['.pdf','.png','.jpg','.jpeg','.webp','.xml'].includes(ext)) throw Error('Unsupported file');
+    const data = fs.readFileSync(source);
+    const digest = crypto.createHash('sha256').update(data).digest('hex');
+    const filename = digest + ext;
+    const target = path.join(this.receipts, filename);
+    if (!fs.existsSync(target)) fs.writeFileSync(target, data, {flag:'wx'});
+    const event = {action:'receipt', id:crypto.randomUUID(), target:id, filename, digest, recordedAt:new Date().toISOString()};
+    fs.appendFileSync(this.file, JSON.stringify(event) + '\n');
+    return event;
+  }
   void(id, reason) {
     if (!this.list().some(e => e.id === id)) throw Error('Entry not found');
     if (typeof reason !== 'string' || !reason.trim()) throw Error('Correction reason required');
