@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('invoiceForge', {
   saveCompanyData: (data) => ipcRenderer.invoke('saveCompanyData', data),
   getLastInvoiceNumber: () => ipcRenderer.invoke('getLastInvoiceNumber'),
   saveLastInvoiceNumber: (number) => ipcRenderer.invoke('saveLastInvoiceNumber', number),
+  musicLicenseGenerate: (data) => ipcRenderer.invoke('music:license:generate', data),
+  musicLicenseSave: (content) => ipcRenderer.invoke('music:license:save', content),
   invoicesList: () => ipcRenderer.invoke('invoices:list'),
   invoicesAdd: (entry) => ipcRenderer.invoke('invoices:add', entry),
   invoicesStatus: (id, status) => ipcRenderer.invoke('invoices:status', id, status),
