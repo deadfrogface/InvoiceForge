@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('invoiceForge', {
   assistantRecurring: () => ipcRenderer.invoke('assistant:recurring'),
   closingMonth: (year,month) => ipcRenderer.invoke('closing:month',year,month),
   closingTaxBridge: (year,adjustments) => ipcRenderer.invoke('closing:tax-bridge',year,adjustments),
+  taxTransmissionReadiness: (kind) => ipcRenderer.invoke('tax:transmission-readiness',kind),
   documentCapabilities: () => ipcRenderer.invoke('documents:capabilities'),
   documentExtract: () => ipcRenderer.invoke('documents:extract'),
   assetsList: () => ipcRenderer.invoke('assets:list'),
