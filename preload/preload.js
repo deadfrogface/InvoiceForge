@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('invoiceForge', {
   saveLastInvoiceNumber: (number) => ipcRenderer.invoke('saveLastInvoiceNumber', number),
   ledgerAdd: (entry) => ipcRenderer.invoke('ledger:add', entry),
   ledgerList: () => ipcRenderer.invoke('ledger:list'),
+  ledgerBackup: () => ipcRenderer.invoke('ledger:backup'),
   ledgerAttach: (id) => ipcRenderer.invoke('ledger:receipt:add', id),
   ledgerOpenReceipt: (id) => ipcRenderer.invoke('ledger:receipt:open', id),
   ledgerYear: (year) => ipcRenderer.invoke('ledger:year', year),
