@@ -39,7 +39,7 @@
      table.append(head);
      for(const r of c.rows){
       const tr=el('tr');
-      for(const v of [r.date,r.description,money(r.amountCents),r.businessPercent+' %',r.documentReference||'Fehlt',r.needsReview?'Prüfen':'Erfasst'])tr.append(el('td',v));
+      for(const v of [r.date,r.description,money(r.amountCents),r.businessPercent+' %',r.receipt?'Archiviert':r.documentReference||'Fehlt',r.needsReview?'Prüfen':'Erfasst'])tr.append(el('td',v));
       table.append(tr);
      }
      child.append(table);parent.append(child);
