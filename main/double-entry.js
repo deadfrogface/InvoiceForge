@@ -49,9 +49,9 @@ class DoubleEntryLedger{
   const current=this.list().filter(e=>e.date.startsWith(String(year)));
   const movements=Object.fromEntries(Object.keys(ACCOUNTS).map(a=>[a,0]));
   for(const entry of current)for(const l of entry.lines)movements[l.account]+=l.debitCents-l.creditCents;
-  const revenueCents=-Object.keys(ACCOUNTS).filter(a=>ACCOUNTS[a].type==='revenue').reduce((s,a)=>s+movements[a],0);
+  const revenueCents=(-Object.keys(ACCOUNTS).filter(a=>ACCOUNTS[a].type==='revenue').reduce((s,a)=>s+movements[a],0))||0;
   const expenseCents=Object.keys(ACCOUNTS).filter(a=>ACCOUNTS[a].type==='expense').reduce((s,a)=>s+movements[a],0);
-  const profitCents=revenueCents-expenseCents;
+  const profitCents=(revenueCents-expenseCents)||0;
   const sumType=type=>tb.accounts.filter(a=>a.type===type).reduce((s,a)=>s+(type==='asset'?a.balanceCents:-a.balanceCents),0);
   const assetsCents=sumType('asset'),liabilitiesCents=sumType('liability'),equityBookedCents=sumType('equity');
   const priorResultsCents=tb.accounts.filter(a=>['revenue','expense'].includes(a.type)).reduce((s,a)=>s-a.balanceCents,0)-profitCents;
