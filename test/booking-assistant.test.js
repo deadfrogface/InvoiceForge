@@ -28,3 +28,12 @@ test('monthly review, tax bridge and depreciation remain provisional',()=>{
   assert.equal(a[0].depreciationCents,39996);assert.equal(a[0].requiresReview,true);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('incomplete or invalid invoice metadata must not produce postable lines',()=>{
+ const base={invoiceNumber:'R-1',issueDate:'2026-10-14',payableAmount:'119.00',currency:'EUR'};
+ assert.equal(proposeDocument({...base,issueDate:'2026-02-30'}).lines.length,0);
+ assert.equal(proposeDocument({...base,currency:'USD'}).lines.length,0);
+ assert.equal(proposeDocument({...base,invoiceNumber:''}).lines.length,0);
+ assert.equal(proposeDocument({...base,payableAmount:'0.00'}).lines.length,0);
+ assert.equal(proposeDocument(base).lines.length,3);
+});
