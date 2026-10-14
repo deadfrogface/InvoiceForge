@@ -58,7 +58,7 @@
   populate();
   $('bkGroup').addEventListener('change',populateSub);
   $('bkYear').value=new Date().getFullYear();
-  $('bkDate').value=new Date().toLocaleDateString('en-CA');
+  $('bkDate').value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
   $('bkForm').addEventListener('submit',async ev=>{
    ev.preventDefault();
    try{
