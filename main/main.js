@@ -160,3 +160,11 @@ const {AssetRegister}=require('./asset-register');
 const assetRegister=new AssetRegister(path.join(app.getPath('userData'),'bookkeeping'));
 ipcMain.handle('assets:list',()=>assetRegister.list());
 ipcMain.handle('assets:add',(_event,asset)=>assetRegister.add(asset));
+
+const documentExtraction=require('./document-extraction');
+ipcMain.handle('documents:capabilities',()=>documentExtraction.capabilities());
+ipcMain.handle('documents:extract',async()=>{
+ const selected=await dialog.showOpenDialog({properties:['openFile'],filters:[{name:'Belege',extensions:['pdf','png','jpg','jpeg','tif','tiff','webp','txt','xml']}]});
+ if(selected.canceled||!selected.filePaths.length)return null;
+ return documentExtraction.readDocument(selected.filePaths[0]);
+});
