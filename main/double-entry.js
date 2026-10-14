@@ -25,12 +25,16 @@ class DoubleEntryLedger{
  constructor(directory){fs.mkdirSync(directory,{recursive:true,mode:0o700});this.file=path.join(directory,'double-entry.jsonl');}
  events(){return fs.existsSync(this.file)?fs.readFileSync(this.file,'utf8').split('\n').filter(Boolean).map(JSON.parse):[];}
  verifyIntegrity(){let previous='GENESIS';const events=this.events();for(const event of events){if(event.previousHash!==previous)throw Error('Journal-Prüfkette unterbrochen');const {hash,...payload}=event;const expected=crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');if(hash!==expected)throw Error('Journal-Prüfsumme fehlerhaft');previous=hash;}return {ok:true,count:events.length,lastHash:previous};}
- list(){return this.events().filter(e=>e.action==='post');}
+ list(){this.verifyIntegrity();return this.events().filter(e=>e.action==='post');}
+ appendEvent(entry){const state=this.verifyIntegrity();entry.previousHash=state.lastHash;entry.hash=crypto.createHash('sha256').update(JSON.stringify(entry)).digest('hex');fs.appendFileSync(this.file,JSON.stringify(entry)+'\n',{mode:0o600});return entry;}
+ lockedYears(){this.verifyIntegrity();return new Set(this.events().filter(e=>e.action==='lock-year').map(e=>e.year));}
+ lockYear(year){if(!Number.isInteger(year)||year<2000||year>2200)throw Error('Ungültiges Jahr');if(this.lockedYears().has(year))throw Error('Jahr bereits gesperrt');return this.appendEvent({action:'lock-year',year,id:crypto.randomUUID(),recordedAt:new Date().toISOString()});}
+ reverse(id,date,reason){const original=this.list().find(e=>e.id===id);if(!original)throw Error('Buchung nicht gefunden');if(!isoDate(date)||!String(reason||'').trim())throw Error('Stornodatum und Begründung erforderlich');if(this.events().some(e=>e.reversalOf===id))throw Error('Bereits storniert');return this.post({date,description:'Storno: '+String(reason).slice(0,400),reference:original.reference,reversalOf:id,lines:original.lines.map(l=>({account:l.account,debitCents:l.creditCents,creditCents:l.debitCents}))});}
  post(input){
   validateJournal(input);
-  const entry={action:'post',id:crypto.randomUUID(),date:input.date,description:input.description.trim(),reference:String(input.reference||'').slice(0,200),lines:input.lines.map(l=>({account:String(l.account),debitCents:l.debitCents,creditCents:l.creditCents})),recordedAt:new Date().toISOString()};
-  const state=this.verifyIntegrity();entry.previousHash=state.lastHash;entry.hash=crypto.createHash('sha256').update(JSON.stringify(entry)).digest('hex');
-  fs.appendFileSync(this.file,JSON.stringify(entry)+'\n',{mode:0o600});return entry;
+  if(this.lockedYears().has(Number(input.date.slice(0,4))))throw Error('Geschäftsjahr gesperrt');
+  const entry={action:'post',id:crypto.randomUUID(),date:input.date,description:input.description.trim(),reference:String(input.reference||'').slice(0,200),lines:input.lines.map(l=>({account:String(l.account),debitCents:l.debitCents,creditCents:l.creditCents})),recordedAt:new Date().toISOString(),...(input.reversalOf?{reversalOf:input.reversalOf}:{})};
+  return this.appendEvent(entry);
  }
  trialBalance(year){
   if(!Number.isInteger(year)||year<2000||year>2200)throw Error('Ungültiges Jahr');
