@@ -134,3 +134,16 @@ const musicArchive=new MusicLicenseArchive(path.join(app.getPath('userData'),'bo
 ipcMain.handle('music:archive:list',()=>musicArchive.list());
 ipcMain.handle('music:archive:add',(_event,draft)=>musicArchive.add(draft));
 ipcMain.handle('music:archive:status',(_event,id,status)=>musicArchive.setStatus(id,status));
+
+const {DoubleEntryLedger}=require('./double-entry');
+const doubleEntry=new DoubleEntryLedger(path.join(app.getPath('userData'),'bookkeeping'));
+ipcMain.handle('accounting:accounts',()=>require('./double-entry').ACCOUNTS);
+ipcMain.handle('accounting:post',(_event,input)=>doubleEntry.post(input));
+ipcMain.handle('accounting:list',()=>doubleEntry.list());
+ipcMain.handle('accounting:statements',(_event,year)=>doubleEntry.statements(year));
+ipcMain.handle('accounting:tax-closing',(_event,year)=>doubleEntry.taxClosing(year));
+ipcMain.handle('einvoice:inspect',async()=>{
+ const selection=await dialog.showOpenDialog({properties:['openFile'],filters:[{name:'E-Rechnung XML',extensions:['xml']}]});
+ if(selection.canceled||!selection.filePaths.length)return null;
+ return require('./e-invoice').inspectEInvoiceFile(selection.filePaths[0]);
+});
