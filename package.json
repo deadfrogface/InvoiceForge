@@ -8,7 +8,8 @@
     "build": "electron-builder --win",
     "dist": "electron-builder --win",
     "create-icon": "node scripts/create-icon.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "verify:bundle": "node scripts/verify-bundled-tools.js"
   },
   "dependencies": {
     "electron-store": "^8.1.0",
@@ -20,5 +21,40 @@
     "electron-builder": "^24.9.1"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "build": {
+    "appId": "de.invoiceforge.desktop",
+    "productName": "InvoiceForge",
+    "asar": true,
+    "extraResources": [
+      {
+        "from": "vendor/tools",
+        "to": "tools",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "files": [
+      "main/**/*",
+      "preload/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ]
+    }
+  }
 }
