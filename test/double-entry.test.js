@@ -59,3 +59,16 @@ test('reversals preserve history and locked years reject postings',()=>{
   assert.equal(ledger.verifyIntegrity().count,3);
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('year-end preflight flags missing evidence references without claiming tax readiness',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'invoiceforge-preflight-'));
+ try{
+  const ledger=new DoubleEntryLedger(dir);
+  ledger.post({date:'2026-01-05',description:'Beleglos',lines:[{account:'1200',debitCents:100,creditCents:0},{account:'4000',debitCents:0,creditCents:100}]});
+  const check=ledger.preflight(2026);
+  assert.equal(check.technicallyBalanced,true);
+  assert.equal(check.readyForTaxFiling,false);
+  assert.ok(check.issues.some(i=>i.code==='MISSING_REFERENCE'));
+  assert.ok(ledger.taxClosing(2026).preflight.issues.some(i=>i.code==='MISSING_REFERENCE'));
+ }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
