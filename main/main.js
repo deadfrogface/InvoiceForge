@@ -171,3 +171,6 @@ ipcMain.handle('documents:extract',async()=>{
 
 const taxTransmission=require('./tax-transmission');
 ipcMain.handle('tax:transmission-readiness',(_event,kind)=>taxTransmission.transmissionReadiness(kind));
+
+const {annualCloseChecklist}=require('./annual-close');
+ipcMain.handle('closing:annual',(_event,year)=>annualCloseChecklist(doubleEntry,assetRegister.list(),year));
