@@ -21,7 +21,7 @@ jobs:
       - name: Stage real executables and language packs
         run: bash scripts/stage-linux-ocr.sh
       - name: Verify bundle manifest
-        run: npm run verify:bundle
+        run: INVOICEFORGE_OCR_ONLY=1 npm run verify:bundle
       - name: Verify actual OCR tools execute
         run: |
           vendor/tools/linux/x64/pdftotext -v
