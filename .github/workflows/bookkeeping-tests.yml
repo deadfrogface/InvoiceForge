@@ -1,7 +1,7 @@
 name: Bookkeeping tests
 on:
   push:
-    branches: [feature/bookkeeping-foundation, main]
+    branches: [feature/bookkeeping-foundation, feature/bundled-offline-dependencies, main]
   pull_request:
 jobs:
   test:
