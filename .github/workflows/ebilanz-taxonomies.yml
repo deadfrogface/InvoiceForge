@@ -1,0 +1,32 @@
+name: Official E-Bilanz taxonomy staging
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/bundled-offline-dependencies]
+    paths:
+      - scripts/fetch-official-taxonomies.py
+      - scripts/manifest-taxonomy.js
+      - scripts/verify-taxonomies.js
+      - .github/workflows/ebilanz-taxonomies.yml
+jobs:
+  taxonomy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download official 6.9 and 6.10 XBRL packages
+        run: |
+          python3 scripts/fetch-official-taxonomies.py --version 6.9 --output vendor/taxonomies/6.9
+          python3 scripts/fetch-official-taxonomies.py --version 6.10 --output vendor/taxonomies/6.10
+      - name: Index files and validate SHA-256
+        run: |
+          node scripts/manifest-taxonomy.js 6.9 vendor/taxonomies/6.9 https://www.esteuer.de/download/taxonomie_20250618/
+          node scripts/manifest-taxonomy.js 6.10 vendor/taxonomies/6.10 https://www.esteuer.de/download/taxonomie_20260615/
+          npm run verify:taxonomies
+      - uses: actions/upload-artifact@v4
+        with:
+          name: official-ebilanz-taxonomies-6.9-6.10
+          path: vendor/taxonomies/
+          retention-days: 30
