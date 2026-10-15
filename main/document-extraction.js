@@ -27,17 +27,19 @@ function readDocument(filename){
   if(!executable('pdftotext'))throw Error('PDF-Textwerkzeug fehlt im InvoiceForge-Paket.');
   let text=runLocal('pdftotext',['-layout',filename,'-'],30000);
   if(text.trim().length>=20)return {source:'poppler-pdftotext',text:text.slice(0,200000),requiresReview:true};
-  if(!executable('ocrmypdf'))throw Error('Scan-PDF erkannt: OCR-Komponente fehlt im InvoiceForge-Paket.');
+  if(!executable('pdftoppm')||!executable('tesseract'))throw Error('Scan-PDF erkannt: PDF-Renderer oder OCR fehlt im InvoiceForge-Paket.');
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'invoiceforge-ocr-'));
   try{
-   const output=path.join(temp,'ocr.pdf');
-   runLocal('ocrmypdf',['--skip-text','--language','deu+eng','--jobs','1','--tesseract-timeout','90',filename,output],120000);
-   text=runLocal('pdftotext',['-layout',output,'-'],30000);
-   return {source:'ocrmypdf',text:text.slice(0,200000),requiresReview:true};
+   const prefix=path.join(temp,'page');
+   runLocal('pdftoppm',['-f','1','-l','20','-r','200','-png',filename,prefix],120000);
+   const pages=fs.readdirSync(temp).filter(name=>/^page-\\d+\\.png$/.test(name)).sort((a,b)=>Number(a.match(/\\d+/)[0])-Number(b.match(/\\d+/)[0]));
+   if(!pages.length)throw Error('Keine PDF-Seiten für OCR erzeugt');
+   const extracted=pages.map(page=>runLocal('tesseract',[path.join(temp,page),'stdout','-l','deu+eng'],60000));
+   return {source:'bundled-pdf-ocr',text:extracted.join('\\n').slice(0,200000),requiresReview:true,truncated:pages.length===20};
   }finally{fs.rmSync(temp,{recursive:true,force:true});}
  }
  if(!executable('tesseract'))throw Error('OCR-Komponente fehlt im InvoiceForge-Paket.');
  return {source:'tesseract',text:runLocal('tesseract',[filename,'stdout','-l','deu+eng'],60000).slice(0,200000),requiresReview:true};
 }
-function capabilities(){return {pdftotext:executable('pdftotext'),ocrmypdf:executable('ocrmypdf'),tesseract:executable('tesseract'),java:executable('java'),ericConfigured:false,einvoiceValidatorConfigured:false};}
+function capabilities(){return {pdftotext:executable('pdftotext'),pdftoppm:executable('pdftoppm'),tesseract:executable('tesseract'),java:executable('java'),ericConfigured:false,einvoiceValidatorConfigured:false};}
 module.exports={readDocument,capabilities,toolPath};
