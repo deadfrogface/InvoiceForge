@@ -1,0 +1,34 @@
+name: Linux bundled OCR build
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/bundled-offline-dependencies]
+    paths:
+      - 'scripts/stage-linux-ocr.sh'
+      - 'scripts/verify-bundled-tools.js'
+      - 'main/document-extraction.js'
+      - '.github/workflows/linux-offline-build.yml'
+jobs:
+  bundle-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install build-time OCR dependencies (not end-user dependencies)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
+      - name: Stage real executables and language packs
+        run: bash scripts/stage-linux-ocr.sh
+      - name: Verify bundle manifest
+        run: npm run verify:bundle
+      - name: Verify actual OCR tools execute
+        run: |
+          vendor/tools/linux/x64/pdftotext -v
+          vendor/tools/linux/x64/pdftoppm -v
+          TESSDATA_PREFIX="$PWD/vendor/tools/linux/x64/tessdata" vendor/tools/linux/x64/tesseract --list-langs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: invoiceforge-linux-ocr-x64-staging
+          path: vendor/tools/linux/x64/
+          retention-days: 7
