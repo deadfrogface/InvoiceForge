@@ -10,7 +10,13 @@ function executable(name){
 function runLocal(name,args,timeout=30000){
  const binary=toolPath(name);
  if(!binary)throw Error('Benötigte Komponente '+name+' ist nicht im InvoiceForge-Paket enthalten. Installation ist unvollständig.');
- const r=cp.spawnSync(binary,args,{encoding:'utf8',timeout,maxBuffer:8*1024*1024,windowsHide:true,shell:false});
+ const env={...process.env};
+ if(name==='tesseract'){
+  const tessdata=path.join(path.dirname(binary),'tessdata');
+  if(!fs.existsSync(path.join(tessdata,'deu.traineddata'))||!fs.existsSync(path.join(tessdata,'eng.traineddata')))throw Error('OCR-Sprachdaten fehlen im InvoiceForge-Paket');
+  env.TESSDATA_PREFIX=tessdata;
+ }
+ const r=cp.spawnSync(binary,args,{encoding:'utf8',timeout,maxBuffer:8*1024*1024,windowsHide:true,shell:false,env});
  if(r.error)throw Error(name+': '+r.error.message);
  if(r.status!==0)throw Error(name+' fehlgeschlagen: '+String(r.stderr||r.stdout).slice(0,1000));
  return String(r.stdout||'');
