@@ -9,7 +9,8 @@
     "dist": "electron-builder --win",
     "create-icon": "node scripts/create-icon.js",
     "test": "node --test test/*.test.js",
-    "verify:bundle": "node scripts/verify-bundled-tools.js"
+    "verify:bundle": "node scripts/verify-bundled-tools.js",
+    "verify:taxonomies": "node scripts/verify-taxonomies.js"
   },
   "dependencies": {
     "electron-store": "^8.1.0",
@@ -30,6 +31,13 @@
       {
         "from": "vendor/tools",
         "to": "tools",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "vendor/taxonomies",
+        "to": "taxonomies",
         "filter": [
           "**/*"
         ]
