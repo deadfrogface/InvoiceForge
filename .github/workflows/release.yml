@@ -31,6 +31,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Require passing regression tests
+        run: npm test
+
+      - name: Require complete official taxonomy resources
+        run: npm run verify:taxonomies
+
+      - name: Require bundled offline runtimes
+        run: npm run verify:bundle
+
       - name: Icon erzeugen
         run: npm run create-icon
 

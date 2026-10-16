@@ -1,12 +1,53 @@
-appId: com.invoiceforge.app
-productName: InvoiceForge
-directories:
-  output: dist
-win:
-  target: nsis
-  icon: assets/icon.ico
-nsis:
-  oneClick: false
-  allowToChangeInstallationDirectory: true
-  installerIcon: assets/icon.ico
-  uninstallerIcon: assets/icon.ico
+{
+  "appId": "com.invoiceforge.app",
+  "productName": "InvoiceForge",
+  "asar": true,
+  "extraResources": [
+    {
+      "from": "vendor/tools",
+      "to": "tools",
+      "filter": [
+        "**/*"
+      ]
+    },
+    {
+      "from": "vendor/taxonomies",
+      "to": "taxonomies",
+      "filter": [
+        "**/*"
+      ]
+    }
+  ],
+  "files": [
+    "main/**/*",
+    "preload/**/*",
+    "renderer/**/*",
+    "assets/**/*",
+    "package.json"
+  ],
+  "win": {
+    "target": [
+      "nsis"
+    ],
+    "icon": "assets/icon.ico"
+  },
+  "mac": {
+    "target": [
+      "dmg"
+    ]
+  },
+  "linux": {
+    "target": [
+      "AppImage"
+    ]
+  },
+  "directories": {
+    "output": "dist"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "installerIcon": "assets/icon.ico",
+    "uninstallerIcon": "assets/icon.ico"
+  }
+}

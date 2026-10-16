@@ -140,3 +140,13 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 - Linux-CI führt denselben nativen Nachweis nach Staging durch. Frische Maschine ohne Systembibliotheken sowie Windows/macOS noch nicht geprüft.
 - Native Binaries/Sprachdaten lokal bereitgestellt, noch kein ausgeliefertes Installationspaket.
 - Zweiter Remote-Commit: 26266e19713a1881ec5dd40e79b47d5b3383ea8d.
+
+## Buildkonfiguration und Veröffentlichung
+
+- PK.04 Konfigurationskonflikt behoben: einzige Konfiguration in electron-builder.yml (JSON-kompatibles YAML); bestehende App-ID com.invoiceforge.app beibehalten, Plattformziele, Offline-Ressourcen und Assets integriert. Effektiver Installerbau bleibt offen.
+- PK.06 Releaseworkflow verlangt jetzt vor Paketierung separat erfolgreiche Tests, Taxonomien und Laufzeitkomponenten; fehlende Komponenten werden nicht mehr ungeprüft veröffentlicht.
+- Neue Konfigurationstests bestanden; aktueller Stand 53/53 JavaScript-Tests und 6/6 Python-Tests. Keine Tests gelöscht oder übersprungen.
+- `verify:taxonomies` fehlgeschlagen: 6.9 und 6.10 fehlen. `verify:bundle` fehlgeschlagen: einvoice-validator fehlt. `INVOICEFORGE_OCR_ONLY=1 npm run verify:bundle` bestanden.
+- Remote-Commit OCR: f18a4b43b7757d3eef40b239a5a2374b3ceeeaca.
+- CI für 26266e1: Buchhaltung erfolgreich; Taxonomiestaging weiterhin fehlgeschlagen. Neuere Läufe separat prüfen.
+- Keine vollständige fachliche E-Bilanz, keine abgeschlossene Steuerimplementierung, keine EN16931-Abnahme, kein plattformübergreifender Release.
