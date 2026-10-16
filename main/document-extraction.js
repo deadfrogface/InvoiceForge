@@ -1,12 +1,14 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process');
 function toolPath(name){
+ if(!['pdftotext','pdftoppm','tesseract','java','einvoice-validator'].includes(name))throw Error('Unbekanntes Paketwerkzeug');
  const suffix=process.platform==='win32'?'.exe':'';
  const bundled=path.join(process.resourcesPath||path.resolve(__dirname,'..','vendor'),'tools',process.platform,process.arch,name+suffix);
  return fs.existsSync(bundled)?bundled:null;
 }
 function executable(name){
- const binary=toolPath(name);if(!binary)return false;const r=cp.spawnSync(binary,['--version'],{encoding:'utf8',timeout:5000,windowsHide:true});return !r.error&&r.status===0;}
+ try{runLocal(name,[['pdftotext','pdftoppm'].includes(name)?'-v':'--version'],5000);return true;}catch{return false;}}
+
 function runLocal(name,args,timeout=30000){
  const binary=toolPath(name);
  if(!binary)throw Error('Benötigte Komponente '+name+' ist nicht im InvoiceForge-Paket enthalten. Installation ist unvollständig.');
@@ -39,10 +41,10 @@ function readDocument(filename){
   try{
    const prefix=path.join(temp,'page');
    runLocal('pdftoppm',['-f','1','-l','20','-r','200','-png',filename,prefix],120000);
-   const pages=fs.readdirSync(temp).filter(name=>/^page-\\d+\\.png$/.test(name)).sort((a,b)=>Number(a.match(/\\d+/)[0])-Number(b.match(/\\d+/)[0]));
+   const pages=fs.readdirSync(temp).filter(name=>/^page-\d+\.png$/.test(name)).sort((a,b)=>Number(a.match(/\d+/)[0])-Number(b.match(/\d+/)[0]));
    if(!pages.length)throw Error('Keine PDF-Seiten für OCR erzeugt');
    const extracted=pages.map(page=>runLocal('tesseract',[path.join(temp,page),'stdout','-l','deu+eng'],60000));
-   return {source:'bundled-pdf-ocr',text:extracted.join('\\n').slice(0,200000),requiresReview:true,truncated:pages.length===20};
+   return {source:'bundled-pdf-ocr',text:extracted.join('\n').slice(0,200000),requiresReview:true,truncated:pages.length===20};
   }finally{fs.rmSync(temp,{recursive:true,force:true});}
  }
  if(!executable('tesseract'))throw Error('OCR-Komponente fehlt im InvoiceForge-Paket.');
