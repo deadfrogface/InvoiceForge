@@ -16,8 +16,8 @@ function validateMappingAgainstTaxonomy(root,year,version,trialBalance,mapping){
  const unknown=Object.values(mapping).filter(v=>typeof v!=='string'||!concepts.has(v));
  return {...mapped,taxonomy:manifest,unknownConcepts:[...new Set(unknown)],validMapping:mapped.complete&&unknown.length===0,conceptCount:concepts.size};
 }
-function exportReviewXbrl({entityIdentifier,entityScheme='http://www.xbrl.org/2003/iso4217',year,namespace,trialBalance,mapping,root,version}){
- if(typeof entityIdentifier!=='string'||!entityIdentifier.trim()||!/^[0-9]{4}$/.test(String(year)))throw Error('Unternehmenskennung oder Jahr fehlt');
+function exportReviewXbrl({entityIdentifier,entityScheme,year,namespace,trialBalance,mapping,root,version}){
+ if(typeof entityIdentifier!=='string'||!entityIdentifier.trim()||typeof entityScheme!=='string'||!/^https?:\/\//.test(entityScheme)||!/^[0-9]{4}$/.test(String(year)))throw Error('Unternehmenskennung oder Jahr fehlt');
  if(typeof namespace!=='string'||!/^https?:\/\//.test(namespace))throw Error('Taxonomie-Namespace fehlt');
  const result=validateMappingAgainstTaxonomy(root,year,version,trialBalance,mapping);
  if(!result.validMapping)throw Error('Nicht alle Konten sind auf vorhandene Taxonomiekonzepte abgebildet: '+[...result.unmapped,...result.unknownConcepts].join(', '));
