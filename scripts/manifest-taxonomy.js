@@ -12,7 +12,7 @@ function createManifest(directory,version,source){
    else if(entry.isFile()){
     const relative=path.relative(directory,absolute).split(path.sep).join('/');
     if(relative==='manifest.json')continue;
-    if(!/\.(xsd|xml|xbrl|xlink|txt|json)$/i.test(relative))throw Error('Unexpected taxonomy file: '+relative);
+    if(!/\.(xsd|xml|xbrl|xlink|txt|json|pdf)$/i.test(relative))throw Error('Unexpected taxonomy file: '+relative);
     const sha256=crypto.createHash('sha256').update(fs.readFileSync(absolute)).digest('hex');
     files.push({path:relative,sha256});
    }

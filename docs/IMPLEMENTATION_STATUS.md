@@ -150,3 +150,14 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 - Remote-Commit OCR: f18a4b43b7757d3eef40b239a5a2374b3ceeeaca.
 - CI für 26266e1: Buchhaltung erfolgreich; Taxonomiestaging weiterhin fehlgeschlagen. Neuere Läufe separat prüfen.
 - Keine vollständige fachliche E-Bilanz, keine abgeschlossene Steuerimplementierung, keine EN16931-Abnahme, kein plattformübergreifender Release.
+
+## Aktueller Taxonomie-Durchbruch (ersetzt den Downloadblocker oben)
+
+- Nach Ausfall von eSteuer alternative Originalquelle beim Rechteinhaber gefunden: https://de.xbrl.org/taxonomien/e-bilanz-taxonomie-6-10/ und https://de.xbrl.org/taxonomien/e-bilanz-hgb-taxonomie-version-6-9-2/. Beide verlinken die vollstaendigen ZIPs auf www.xbrl.de (TLS-geprüft).
+- Beide Originalarchive erfolgreich heruntergeladen, feste SHA-256-Werte in PUBLISHER hinterlegt; keine TLS-Abschaltung.
+- 6.9: 279 unveränderte XBRL-Dateien + Original-Disclaimer + Provenienz, Manifest mit 281 Einträgen.
+- 6.10: 286 unveränderte XBRL-Dateien + Original-Disclaimer + Provenienz, Manifest mit 288 Einträgen.
+- `npm run verify:taxonomies` jetzt erfolgreich für beide echten Pakete. Relative XSD-Imports vorhanden. Externe XBRL-Standardschemas noch separat offline bereitzustellen.
+- Große Taxonomiedateien werden reproduzierbar beim Build bereitgestellt statt als unüberprüfbare Textkopien committed; Taxonomie-CI produziert das vollständige Artefakt. Installer resource rule vorhanden; Installation noch nicht abgenommen.
+- Archivprüfungen: 8/8 Python-Tests, inklusive falschem Publisherhash und komplettem xbrl-Teilbaum samt Original-Disclaimer.
+- Exakt nächster Schritt: externe XBRL-Standardschemas offline auflösen, echten XBRL-Prozessor integrieren und das Kontenmapping gegen beide Generationen erstellen.

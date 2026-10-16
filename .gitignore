@@ -9,3 +9,4 @@ __pycache__/
 
 # Build-time native staging; produced by platform workflows
 vendor/tools/
+vendor/taxonomies/

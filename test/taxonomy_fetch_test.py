@@ -61,4 +61,27 @@ class TaxonomyFetchTests(unittest.TestCase):
             self.assertIn(fetch.hashlib.sha256(data).hexdigest(), (target / 'provenance.json').read_text())
             with patch.object(fetch, 'download', return_value=page), self.assertRaises(ValueError): fetch.stage('6.9', target)
 
+    def test_publisher_package_extracts_all_xbrl_and_preserves_disclaimer(self):
+        prefix = 'german-gaap-taxonomy-test'
+        data = archive([(prefix+'/xbrl/gaap/a.xsd', '<schema/>'),
+                        (prefix+'/xbrl/gcd/gcd.xml', '<linkbase/>'),
+                        (prefix+'/disclaimer/XBRL-de_Disclaimer.pdf', b'%PDF-license'),
+                        (prefix+'/excel/visual.xlsx', b'not runtime data')])
+        publisher = {'url':'https://www.xbrl.de/test.zip', 'root':prefix,
+                     'sha256':fetch.hashlib.sha256(data).hexdigest()}
+        with tempfile.TemporaryDirectory() as root, patch.dict(fetch.PUBLISHER, {'6.9':publisher}):
+            target=pathlib.Path(root)/'6.9'
+            with patch.object(fetch, 'download', return_value=data):
+                fetch.stage('6.9', target, source='publisher')
+            self.assertTrue((target/'gaap/a.xsd').exists())
+            self.assertTrue((target/'gcd/gcd.xml').exists())
+            self.assertTrue((target/'XBRL-de_Disclaimer.pdf').exists())
+            self.assertFalse((target/'excel').exists())
+    def test_publisher_archive_must_match_pinned_hash(self):
+        with tempfile.TemporaryDirectory() as root, patch.object(fetch, 'download', return_value=b'changed archive'):
+            target=pathlib.Path(root)/'6.9'
+            with self.assertRaisesRegex(ValueError, 'SHA-256 mismatch'):
+                fetch.stage('6.9', target, source='publisher')
+            self.assertFalse(target.exists())
+
 if __name__ == '__main__': unittest.main()

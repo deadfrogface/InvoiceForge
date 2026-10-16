@@ -16,6 +16,10 @@ import zipfile
 
 BASE = 'https://www.esteuer.de/download/'
 SOURCES = {'6.9': 'taxonomie_20250618/', '6.10': 'taxonomie_20260615/'}
+PUBLISHER = {
+    '6.9': {'url': 'https://www.xbrl.de/german-gaap-taxonomy-v6.9-2025-04-01.zip', 'sha256': '4c2572b438e7c1b04119d2c6363bc9b07605ddb1a14731dec10a3a0900d7bfc9', 'root': 'german-gaap-taxonomy-v6.9-2025-04-01'},
+    '6.10': {'url': 'https://www.xbrl.de/german-gaap-taxonomy-v6.10-2026-04-01.zip', 'sha256': '8e5ceb61a65aa46c6b1b6d86dce2a207ebfae1fecdbb4012687ac2316b258457', 'root': 'german-gaap-taxonomy-v6.10-2026-04-01'},
+}
 MAX_ARCHIVE = 150_000_000
 MAX_EXPANDED = 300_000_000
 MAX_ENTRY = 20_000_000
@@ -31,7 +35,7 @@ class Links(html.parser.HTMLParser):
 
 def trusted_url(url):
     parsed = urllib.parse.urlparse(url)
-    if (parsed.scheme != 'https' or parsed.hostname != 'www.esteuer.de'
+    if (parsed.scheme != 'https' or parsed.hostname not in {'www.esteuer.de', 'www.xbrl.de', 'de.xbrl.org'}
             or parsed.username or parsed.password or parsed.port not in (None, 443)):
         raise ValueError('Untrusted taxonomy URL: ' + url)
     return url
@@ -68,7 +72,7 @@ def archive_links(version, page_html):
         raise ValueError('Expected exactly one official non-preview XBRL archive')
     return [trusted_url(url) for url in urls]
 
-def extract_archive(data, target):
+def extract_archive(data, target, publisher_root=None):
     """Extract an already downloaded archive only into a fresh private staging directory."""
     seen = set()
     total = 0
@@ -86,6 +90,13 @@ def extract_archive(data, target):
                 raise ValueError('Archive symlink or special file forbidden')
             if member.is_dir():
                 continue
+            if publisher_root:
+                if name.parts[:2] == (publisher_root, 'xbrl'):
+                    name = pathlib.PurePosixPath(*name.parts[2:])
+                elif str(name) == publisher_root + '/disclaimer/XBRL-de_Disclaimer.pdf':
+                    name = pathlib.PurePosixPath('XBRL-de_Disclaimer.pdf')
+                else:
+                    continue
             key = str(name).casefold()
             if key in seen:
                 raise ValueError('Duplicate archive path')
@@ -93,7 +104,10 @@ def extract_archive(data, target):
             total += member.file_size
             if member.file_size > MAX_ENTRY or total > MAX_EXPANDED:
                 raise ValueError('Expanded archive exceeds size limit')
-            if name.suffix.lower() not in {'.xsd', '.xml', '.xbrl', '.xlink', '.txt', '.json'}:
+            allowed = {'.xsd', '.xml', '.xbrl', '.xlink', '.txt', '.json'}
+            if publisher_root:
+                allowed.add('.pdf')
+            if name.suffix.lower() not in allowed:
                 raise ValueError('Unexpected taxonomy file: ' + str(name))
             dest = target.joinpath(*name.parts)
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -103,17 +117,20 @@ def extract_archive(data, target):
         raise ValueError('No XBRL schemas staged')
     return len(seen)
 
-def stage(version, target, ca_file=None):
+def stage(version, target, ca_file=None, source="esteuer", archive_file=None):
     page = urllib.parse.urljoin(BASE, SOURCES[version])
-    urls = archive_links(version, download(page, 5_000_000, ca_file).decode('utf-8', 'replace'))
+    publisher = PUBLISHER[version] if source == 'publisher' else None
+    urls = [publisher['url']] if publisher else archive_links(version, download(page, 5_000_000, ca_file).decode('utf-8', 'replace'))
     target = pathlib.Path(target).absolute()
     if target.exists() or target.is_symlink():
         raise ValueError('Output already exists; refusing to replace an existing taxonomy')
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = pathlib.Path(tempfile.mkdtemp(prefix='.taxonomy-', dir=target.parent))
     try:
-        data = download(urls[0], ca_file=ca_file)
-        count = extract_archive(data, temporary)
+        data = pathlib.Path(archive_file).read_bytes() if archive_file else download(urls[0], ca_file=ca_file)
+        if publisher and hashlib.sha256(data).hexdigest() != publisher['sha256']:
+            raise ValueError('Publisher archive SHA-256 mismatch')
+        count = extract_archive(data, temporary, publisher['root'] if publisher else None)
         provenance = {'version': version, 'source': urls[0],
                       'archiveSha256': hashlib.sha256(data).hexdigest(), 'fileCount': count}
         (temporary / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
@@ -127,6 +144,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', choices=SOURCES, required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--source', choices=['publisher', 'esteuer'], default='publisher')
+    parser.add_argument('--archive', help='Previously downloaded publisher ZIP, checked against pinned SHA-256')
     parser.add_argument('--ca-file', help='Additional verified CA bundle; never disables TLS verification')
     args = parser.parse_args()
-    stage(args.version, pathlib.Path(args.output), args.ca_file)
+    stage(args.version, pathlib.Path(args.output), args.ca_file, args.source, args.archive)
