@@ -161,3 +161,11 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 - Große Taxonomiedateien werden reproduzierbar beim Build bereitgestellt statt als unüberprüfbare Textkopien committed; Taxonomie-CI produziert das vollständige Artefakt. Installer resource rule vorhanden; Installation noch nicht abgenommen.
 - Archivprüfungen: 8/8 Python-Tests, inklusive falschem Publisherhash und komplettem xbrl-Teilbaum samt Original-Disclaimer.
 - Exakt nächster Schritt: externe XBRL-Standardschemas offline auflösen, echten XBRL-Prozessor integrieren und das Kontenmapping gegen beide Generationen erstellen.
+
+## Reproduzierbare Installer-Beschaffung
+
+- `npm run stage:taxonomies` integriert beide versionierten Publisherpakete vor der Releaseprüfung. Gemeinsames Quellenregister `main/taxonomy-sources.json` mit festem SHA-256 pro Originalarchiv.
+- Bestehende Bereitstellung wird mit Provenienz und allen Dateihashes geprüft; abweichende oder unvollständige Daten führen zum Fehler.
+- Paketinhalt: alle XBRL-Dateien aller Module, Original-Disclaimer und Herkunft. Kein Download zur Endnutzerlaufzeit.
+- Lokal erfolgreich: stage:taxonomies und verify:taxonomies mit beiden echten Paketen.
+- Taxonomiecommit: 4c830d2744fcae54ad0fe86460a9489012eb8591; CI dazu noch prüfen.

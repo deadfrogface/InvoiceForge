@@ -5,6 +5,8 @@ on:
     branches: [feature/bundled-offline-dependencies]
     paths:
       - scripts/fetch-official-taxonomies.py
+      - scripts/stage-taxonomies.js
+      - main/taxonomy-sources.json
       - scripts/manifest-taxonomy.js
       - scripts/verify-taxonomies.js
       - .github/workflows/ebilanz-taxonomies.yml

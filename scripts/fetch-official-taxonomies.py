@@ -16,10 +16,7 @@ import zipfile
 
 BASE = 'https://www.esteuer.de/download/'
 SOURCES = {'6.9': 'taxonomie_20250618/', '6.10': 'taxonomie_20260615/'}
-PUBLISHER = {
-    '6.9': {'url': 'https://www.xbrl.de/german-gaap-taxonomy-v6.9-2025-04-01.zip', 'sha256': '4c2572b438e7c1b04119d2c6363bc9b07605ddb1a14731dec10a3a0900d7bfc9', 'root': 'german-gaap-taxonomy-v6.9-2025-04-01'},
-    '6.10': {'url': 'https://www.xbrl.de/german-gaap-taxonomy-v6.10-2026-04-01.zip', 'sha256': '8e5ceb61a65aa46c6b1b6d86dce2a207ebfae1fecdbb4012687ac2316b258457', 'root': 'german-gaap-taxonomy-v6.10-2026-04-01'},
-}
+PUBLISHER = json.loads((pathlib.Path(__file__).resolve().parents[1] / 'main/taxonomy-sources.json').read_text())
 MAX_ARCHIVE = 150_000_000
 MAX_EXPANDED = 300_000_000
 MAX_ENTRY = 20_000_000

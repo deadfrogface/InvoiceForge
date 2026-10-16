@@ -34,6 +34,9 @@ jobs:
       - name: Require passing regression tests
         run: npm test
 
+      - name: Stage hash-pinned official taxonomy packages
+        run: npm run stage:taxonomies
+
       - name: Require complete official taxonomy resources
         run: npm run verify:taxonomies
 
