@@ -6,6 +6,8 @@ on:
     paths:
       - scripts/fetch-official-taxonomies.py
       - scripts/stage-taxonomies.js
+      - scripts/validate-taxonomy-dts.py
+      - scripts/xbrl-validation-requirements.txt
       - main/taxonomy-sources.json
       - scripts/manifest-taxonomy.js
       - scripts/verify-taxonomies.js
@@ -29,6 +31,10 @@ jobs:
           node scripts/manifest-taxonomy.js 6.9 vendor/taxonomies/6.9 https://www.xbrl.de/german-gaap-taxonomy-v6.9-2025-04-01.zip
           node scripts/manifest-taxonomy.js 6.10 vendor/taxonomies/6.10 https://www.xbrl.de/german-gaap-taxonomy-v6.10-2026-04-01.zip
           npm run verify:taxonomies
+      - name: Install build-time XBRL validator
+        run: python3 -m pip install -r scripts/xbrl-validation-requirements.txt
+      - name: Validate GAAP and GCD DTS offline with negative control
+        run: python3 scripts/validate-taxonomy-dts.py
       - uses: actions/upload-artifact@v4
         with:
           name: official-ebilanz-taxonomies-6.9-6.10

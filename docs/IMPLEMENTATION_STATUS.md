@@ -12,13 +12,13 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 
 | Einheit | Überprüfbares Ergebnis / Akzeptanz | Automatisierter Nachweis | Abhängigkeit | Status |
 |---|---|---|---|---|
-| EB-01.01 – Bezugsquellen 6.9 und 6.10 verifizieren | Amtlicher Link und Gültigkeit je Version belegt | Quellenabruf | — | teilweise: 6.9 Quelle bestätigt; 6.10 Verzeichnis nicht abrufbar |
-| EB-01.02 – Vollständige Pakete beschaffen | Beide Archive lokal vorhanden, Herkunft und Archivhash erfasst | Downloadintegration | EB-01.01 | blockiert: lokaler HTTP 502; bisherige CI TLS issuer error |
+| EB-01.01 – Bezugsquellen 6.9 und 6.10 verifizieren | Amtlicher Link und Gültigkeit je Version belegt | Quellenabruf | — | belegt: eSteuer und Publisher; Publisherpakete erfolgreich bezogen |
+| EB-01.02 – Vollständige Pakete beschaffen | Beide Archive lokal vorhanden, Herkunft und Archivhash erfasst | Downloadintegration | EB-01.01 | beide echten Pakete beschafft, SHA-256 gepinnt; Buildbereitstellung implementiert und getestet |
 | EB-01.03 – Archive sicher und atomar extrahieren | Traversal, Symlinks, ZIP-Bomben und Teilzustände abgewiesen | Python Archiv-Negativtests | EB-01.01 | implementiert und lokal getestet |
 | EB-01.04 – Manifestintegrität härten | Doppelte Pfade und Symlinks abgewiesen, Hashmanipulation erkannt | offline-regressions.test.js; e-balance-taxonomy.test.js | — | implementiert und lokal getestet |
-| EB-01.05 – Importabschluss und Schemaabhängigkeiten prüfen | Alle transitiven Imports offline auflösbar; fehlende Datei blockiert | Taxonomie-DTS Integrationstest | EB-01.02 | offen |
+| EB-01.05 – Importabschluss und Schemaabhängigkeiten prüfen | Alle transitiven Imports offline auflösbar; fehlende Datei blockiert | Taxonomie-DTS Integrationstest | EB-01.02 | GAAP/GCD beider Versionen mit Arelle offline erfolgreich validiert; Laufzeitpaket offen |
 | EB-01.06 – Jahresauswahl abschließend verifizieren | Normal-/Frühverwendung und abweichende Geschäftsjahre geprüft | Jahresgrenztests | EB-01.01 | teilweise: Ganzjahresauswahl vorhanden |
-| EB-01.07 – Taxonomien in alle Buildpakete integrieren | Installer enthält beide unveränderten Pakete samt Manifest | Installationsprüfung je OS | EB-01.05 | offen |
+| EB-01.07 – Taxonomien in alle Buildpakete integrieren | Installer enthält beide unveränderten Pakete samt Manifest | Installationsprüfung je OS | EB-01.05 | Buildbereitstellung und Ressourcenregel implementiert; Installerabnahme offen |
 
 ## EB-02 Konten-Mapping
 
@@ -35,7 +35,7 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 
 | Einheit | Überprüfbares Ergebnis / Akzeptanz | Automatisierter Nachweis | Abhängigkeit | Status |
 |---|---|---|---|---|
-| EB-03.01 – Taxonomie-DTS mit XBRL-Prozessor laden | Echte Schemas und Linkbases offline geladen | Arelle Integrationstest | EB-01.05 | offen |
+| EB-03.01 – Taxonomie-DTS mit XBRL-Prozessor laden | Echte Schemas und Linkbases offline geladen | Arelle Integrationstest | EB-01.05 | Arelle-DTS-Prüfung als Buildtest implementiert; Anwendungslaufzeitintegration offen |
 | EB-03.02 – GCD-Stammdaten modellieren | Rechtsform, Steuerkennung, Berichtsarten, Perioden vollständig validiert | GCD Pflichtfeldtests | EB-03.01 | offen |
 | EB-03.03 – Instant- und Duration-Kontexte erzeugen | Bilanz/GuV korrekt getrennt, schemaRef vorhanden | XBRL Prozessortest | EB-03.01 | offen |
 | EB-03.04 – Steuerbilanz und Überleitung implementieren | Handels-/Steuerwerte und Abweichungen nachvollziehbar exportiert | Überleitungs-Fixtures | EB-02.03 | offen |
@@ -169,3 +169,13 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 - Paketinhalt: alle XBRL-Dateien aller Module, Original-Disclaimer und Herkunft. Kein Download zur Endnutzerlaufzeit.
 - Lokal erfolgreich: stage:taxonomies und verify:taxonomies mit beiden echten Paketen.
 - Taxonomiecommit: 4c830d2744fcae54ad0fe86460a9489012eb8591; CI dazu noch prüfen.
+
+## Technische XBRL-DTS-Validierung
+
+- Arelle 2.46.1 als versionierte Build-Testabhängigkeit, keine zusätzliche Installation durch Endnutzer gefordert.
+- `python3 scripts/validate-taxonomy-dts.py`: GAAP fiscal und GCD shell je 6.9 und 6.10 offline geladen und technisch validiert. Alle vier Prüfungen erfolgreich. Standardschemas aus dem Arelle-Ressourcencache aufgelöst, keine Internetauflösung.
+- Negativkontrolle mit ungültigem XSD-Typ korrekt abgewiesen; Arelle-Exitcode allein genügt nicht, Fehler im strukturierten Protokoll werden ausgewertet.
+- Dies validiert die Taxonomie-DTS, nicht eine Unternehmens-E-Bilanz oder amtliche fachliche Melderegeln. Noch kein XBRL-Validator im Desktopinstaller.
+- Neuer CI-Schritt führt denselben Offline-Nachweis nach Beschaffung aus.
+- Commit für reproduzierbares Release-Staging: 8e4f5b6517d288d936905c7f85f6960a9963a15b.
+- Nächster konkreter Schritt: EB-02.01 eigenen 12-Konten-Rahmen verbindlich abgrenzen und EB-02.02 Bilanzkonten einschließlich Vorzeichen/Umgliederung gegen reale GAAP-Konzepte zuordnen.
