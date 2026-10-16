@@ -8,6 +8,7 @@ on:
       - 'scripts/verify-bundled-tools.js'
       - 'main/document-extraction.js'
       - '.github/workflows/linux-offline-build.yml'
+      - 'test/native/**'
 jobs:
   bundle-linux:
     runs-on: ubuntu-22.04
@@ -17,7 +18,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install build-time OCR dependencies (not end-user dependencies)
-        run: sudo apt-get update && sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng python3-pil python3-reportlab fonts-dejavu-core
       - name: Stage real executables and language packs
         run: bash scripts/stage-linux-ocr.sh
       - name: Verify bundle manifest
@@ -27,6 +28,10 @@ jobs:
           vendor/tools/linux/x64/pdftotext -v
           vendor/tools/linux/x64/pdftoppm -v
           TESSDATA_PREFIX="$PWD/vendor/tools/linux/x64/tessdata" vendor/tools/linux/x64/tesseract --list-langs
+      - name: Exercise real DE and EN image, scan PDF, text PDF and damaged PDF
+        run: |
+          python3 test/native/create-ocr-fixtures.py "$RUNNER_TEMP/ocr-fixtures"
+          node test/native/verify-ocr.js "$RUNNER_TEMP/ocr-fixtures"
       - uses: actions/upload-artifact@v4
         with:
           name: invoiceforge-linux-ocr-x64-staging

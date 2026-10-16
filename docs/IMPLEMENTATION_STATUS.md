@@ -87,7 +87,7 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 | Einheit | Überprüfbares Ergebnis / Akzeptanz | Automatisierter Nachweis | Abhängigkeit | Status |
 |---|---|---|---|---|
 | DO.01 – Poppler-Aufruf und Scan-Seitenpfad korrigieren | -v statt --version; Seitennummern korrekt sortiert; echte Zeilenumbrüche | offline-regressions.test.js | — | implementiert und lokal getestet; Prozessadapter simuliert |
-| DO.02 – Echte OCR deutsch/englisch nachweisen | Referenzscans mit gebündelten Binaries erkannt | Native OCR Fixtures | PK.01 | offen |
+| DO.02 – Echte OCR deutsch/englisch nachweisen | Referenzscans mit gebündelten Binaries erkannt | Native OCR Fixtures | PK.01 | implementiert, lokal nativ getestet (Linux Host); frische VM offen |
 | DO.03 – Beschädigte und leere Belege behandeln | Verständliche Fehler, temporäre Dateien bereinigt | Defekt/Timeout/Leerdateitests | DO.02 | teilweise |
 | DO.04 – Automatische Datenextraktion ergänzen | Lieferant, Datum, Beträge, Steuer und Unsicherheit erkannt | DE/EN Belegkorpus | DO.02 | offen |
 | DO.05 – Blockierende Prozesse aus UI entfernen | OCR/Validierung abbrechbar im Worker; UI bleibt bedienbar | Worker timeout/cancel test | DO.02 | offen |
@@ -131,3 +131,12 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 - Atomare Bereitstellung, Archiv-SHA256 in provenance.json, keine Überschreibung bestehender Pakete, Größen-/Anzahlgrenzen, Schutz vor Traversal/Symlinks/mehrdeutigen Dateinamen.
 - 6/6 Python-Tests erfolgreich. Tests in Buchhaltungs-CI aufgenommen.
 - Erster Remote-Commit: 5156a80de3999878adaee55be5718d90b951fe88 (PR #2). Lokaler git push hatte keine Zugangsdaten; Veröffentlichung über GitHub-Connector erfolgreich.
+
+## Native OCR-Abnahme auf dem Linux-Host
+
+- Echte gebündelte Poppler-/Tesseract-Prozesse: Deutsch/Englisch jeweils PNG und gerastertes PDF erkannt; digitales PDF extrahiert; beschädigtes PDF abgewiesen.
+- Befehl: `python3 test/native/create-ocr-fixtures.py <temp>` und `node test/native/verify-ocr.js <temp>`. Alle sechs Eingabefälle bestanden.
+- Testbelege werden reproduzierbar erzeugt; Python/Pillow/ReportLab sind ausschließlich Build-Testabhängigkeiten.
+- Linux-CI führt denselben nativen Nachweis nach Staging durch. Frische Maschine ohne Systembibliotheken sowie Windows/macOS noch nicht geprüft.
+- Native Binaries/Sprachdaten lokal bereitgestellt, noch kein ausgeliefertes Installationspaket.
+- Zweiter Remote-Commit: 26266e19713a1881ec5dd40e79b47d5b3383ea8d.

@@ -6,16 +6,17 @@ target="vendor/tools/linux/$arch"
 mkdir -p "$target/tessdata" "$target/lib"
 for cmd in pdftotext pdftoppm tesseract; do
   binary="$(command -v "$cmd" || true)"
+  if [[ -n "${INVOICEFORGE_BUILD_TOOL_DIR:-}" ]]; then binary="$INVOICEFORGE_BUILD_TOOL_DIR/$cmd"; fi
   if [[ -z "$binary" ]]; then echo "Missing build-time tool: $cmd" >&2; exit 1; fi
   cp -L "$binary" "$target/$cmd"
   chmod +x "$target/$cmd"
   ldd "$binary" | awk '/=> \/[^ ]+/ {print $3} /^\s*\/[^ ]+/ {print $1}' | while read -r lib; do
-    [[ -f "$lib" ]] && cp -L -n "$lib" "$target/lib/" || true
+    if [[ -f "$lib" && ! -e "$target/lib/$(basename "$lib")" ]]; then cp -L "$lib" "$target/lib/"; fi
   done
 done
 for lang in deu eng; do
   found=""
-  for root in /usr/share/tesseract-ocr/5/tessdata /usr/share/tesseract-ocr/4.00/tessdata /usr/share/tessdata; do
+  for root in "${INVOICEFORGE_BUILD_TESSDATA:-/usr/share/tesseract-ocr/5/tessdata}" /usr/share/tesseract-ocr/4.00/tessdata /usr/share/tessdata; do
     if [[ -f "$root/$lang.traineddata" ]]; then found="$root/$lang.traineddata"; break; fi
   done
   if [[ -z "$found" ]]; then echo "Missing build-time language: $lang" >&2; exit 1; fi
