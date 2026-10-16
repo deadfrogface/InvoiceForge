@@ -14,7 +14,7 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 |---|---|---|---|---|
 | EB-01.01 – Bezugsquellen 6.9 und 6.10 verifizieren | Amtlicher Link und Gültigkeit je Version belegt | Quellenabruf | — | teilweise: 6.9 Quelle bestätigt; 6.10 Verzeichnis nicht abrufbar |
 | EB-01.02 – Vollständige Pakete beschaffen | Beide Archive lokal vorhanden, Herkunft und Archivhash erfasst | Downloadintegration | EB-01.01 | blockiert: lokaler HTTP 502; bisherige CI TLS issuer error |
-| EB-01.03 – Archive sicher und atomar extrahieren | Traversal, Symlinks, ZIP-Bomben und Teilzustände abgewiesen | Python Archiv-Negativtests | EB-01.01 | offen |
+| EB-01.03 – Archive sicher und atomar extrahieren | Traversal, Symlinks, ZIP-Bomben und Teilzustände abgewiesen | Python Archiv-Negativtests | EB-01.01 | implementiert und lokal getestet |
 | EB-01.04 – Manifestintegrität härten | Doppelte Pfade und Symlinks abgewiesen, Hashmanipulation erkannt | offline-regressions.test.js; e-balance-taxonomy.test.js | — | implementiert und lokal getestet |
 | EB-01.05 – Importabschluss und Schemaabhängigkeiten prüfen | Alle transitiven Imports offline auflösbar; fehlende Datei blockiert | Taxonomie-DTS Integrationstest | EB-01.02 | offen |
 | EB-01.06 – Jahresauswahl abschließend verifizieren | Normal-/Frühverwendung und abweichende Geschäftsjahre geprüft | Jahresgrenztests | EB-01.01 | teilweise: Ganzjahresauswahl vorhanden |
@@ -121,6 +121,13 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 - Tatsächliche native OCR und amtliche XBRL-Validierung wurden damit nicht nachgewiesen.
 - Taxonomiebeschaffung lokal: Python HTTPS und curl lieferten HTTP 502.
 - CI-Lauf 38822324764, Job 116721571385: TLS CERTIFICATE_VERIFY_FAILED / unable to get local issuer certificate. Keine TLS-Abschaltung vorgesehen.
-- Exakt nächste Einheit: EB-01.03 sicheren Archivimport implementieren und testen; danach EB-01.02 Beschaffung mit verifizierter Zertifikatskette erneut versuchen.
+- Exakt nächste Einheit: EB-01.02 Beschaffung mit verifizierter Zertifikatskette erneut versuchen; danach transitive Schemaabhängigkeiten EB-01.05 prüfen.
 - Menschliche Mitwirkung derzeit nicht als allgemeine Blockade belegt. Plattformabnahmen, optionale Codesignatur-Zertifikate und fachliche Freigabe sind separat nachzuweisen.
 - Zugehöriger PR: https://github.com/deadfrogface/InvoiceForge/pull/2
+
+## Zweiter Arbeitsschritt
+
+- EB-01.03: Archivimport wählt exakt ein passendes XBRL-Archiv statt sämtlicher ZIPs (Vergleich/Preview/Layout). TLS bleibt verpflichtend; optional zusätzliches CA-Bundle.
+- Atomare Bereitstellung, Archiv-SHA256 in provenance.json, keine Überschreibung bestehender Pakete, Größen-/Anzahlgrenzen, Schutz vor Traversal/Symlinks/mehrdeutigen Dateinamen.
+- 6/6 Python-Tests erfolgreich. Tests in Buchhaltungs-CI aufgenommen.
+- Erster Remote-Commit: 5156a80de3999878adaee55be5718d90b951fe88 (PR #2). Lokaler git push hatte keine Zugangsdaten; Veröffentlichung über GitHub-Connector erfolgreich.
