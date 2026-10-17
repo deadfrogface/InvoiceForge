@@ -7,17 +7,35 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <header class="workspace-header"><div><span class="eyebrow">DEIN ARBEITSPLATZ</span><h1>InvoiceForge</h1><p class="header-subtitle">Rechnungen und Buchhaltung. Einfach erledigt.</p></div><span class="offline-pill">● Lokal auf deinem Gerät</span></header>
-    <nav class="home-actions" aria-label="Hauptfunktionen">
-      <button type="button" class="home-action" data-target="invoiceDetails"><span class="home-icon">＋</span><strong>Rechnung erstellen</strong><small>Neue Rechnung schreiben</small></button>
-      <button type="button" class="home-action" data-target="closingAssistant" data-focus="caExtract"><span class="home-icon">▧</span><strong>Beleg erfassen</strong><small>PDF oder Foto auslesen</small></button>
-      <button type="button" class="home-action" data-target="bookkeeping"><span class="home-icon">▤</span><strong>Buchhaltung</strong><small>Einnahmen und Ausgaben</small></button>
-      <button type="button" class="home-action" data-target="doubleEntry" data-focus="deTax"><span class="home-icon">％</span><strong>Steuern</strong><small>Abschlussstatus ansehen</small></button>
-      <button type="button" class="home-action" data-target="closingAssistant" data-focus="caAnnual"><span class="home-icon">▥</span><strong>Jahresabschluss</strong><small>Abschluss prüfen</small></button>
-      <button type="button" class="home-action" data-target="section-company"><span class="home-icon">⚙</span><strong>Einstellungen</strong><small>Firmendaten verwalten</small></button>
-    </nav>
-    <p class="home-hint">Wähle eine Aufgabe. Erweiterte Funktionen findest du darunter.</p>
+  <div class="forge-shell">
+    <aside class="forge-sidebar" aria-label="Hauptnavigation">
+      <div><div class="forge-logo"><span class="forge-logo-symbol">⚡</span> Invoice<span>Forge</span></div>
+      <nav class="forge-nav">
+        <button type="button" class="forge-nav-link active" data-view="dashboard">▦ <span>Dashboard</span></button>
+        <button type="button" class="forge-nav-link" data-view="invoiceDetails">▤ <span>Rechnung erstellen</span></button>
+        <button type="button" class="forge-nav-link" data-view="invoiceRegister">▣ <span>Rechnungen</span></button>
+        <button type="button" class="forge-nav-link" data-view="bookkeeping">◫ <span>Belege & Ausgaben</span></button>
+        <button type="button" class="forge-nav-link" data-view="doubleEntry">▥ <span>Buchhaltung</span></button>
+        <button type="button" class="forge-nav-link" data-view="closingAssistant">◷ <span>Jahresabschluss</span></button>
+        <button type="button" class="forge-nav-link" data-view="musicLicense">♫ <span>Musiklizenzen</span></button>
+        <button type="button" class="forge-nav-link" data-view="section-company">⚙ <span>Einstellungen</span></button>
+      </nav></div>
+      <div class="forge-sidebar-bottom"><div class="forge-local">● Daten bleiben auf diesem Gerät</div><small>InvoiceForge · Offline-Workspace</small></div>
+    </aside>
+    <main class="forge-main">
+      <header class="forge-topbar"><div><h1 id="forgePageTitle">Dashboard & Finanzüberblick</h1><p id="forgePageSubtitle">Alles Wichtige auf einen Blick</p></div><div class="forge-company-badge" id="forgeCompanyBadge">Mein Unternehmen</div></header>
+      <div class="container">
+        <section id="forgeDashboard" class="forge-dashboard">
+          <div class="forge-welcome"><div><span class="forge-eyebrow">DEIN ARBEITSPLATZ</span><h2>Willkommen bei InvoiceForge</h2><p>Behalte Rechnungen und Ausgaben im Blick – ohne Fachbegriffe.</p></div><button type="button" class="forge-cta" data-open="invoiceDetails">＋ Neue Rechnung</button></div>
+          <div class="forge-kpis">
+            <article class="forge-kpi"><span>Ausgangsrechnungen</span><strong id="forgeKpiRevenue">—</strong><small>Erfasste Rechnungsbeträge, keine Steuerberechnung</small></article>
+            <article class="forge-kpi"><span>Offene Rechnungen</span><strong id="forgeKpiOpen">—</strong><small id="forgeKpiOpenCount">Status der erfassten Rechnungen</small></article>
+            <article class="forge-kpi"><span>Bezahlt</span><strong id="forgeKpiPaid">—</strong><small>Als bezahlt markierte Ausgangsrechnungen</small></article>
+            <article class="forge-kpi"><span>Rechnungspartner</span><strong id="forgeKpiCustomers">—</strong><small>Aus dem lokalen Rechnungsregister</small></article>
+          </div>
+          <div class="forge-dashboard-grid"><section class="forge-panel"><div class="forge-panel-heading"><h3>Letzte Rechnungen</h3><button type="button" class="forge-quiet" data-open="invoiceRegister">Alle anzeigen →</button></div><div class="forge-table-wrap"><table class="forge-recent-table"><thead><tr><th>Nummer</th><th>Rechnungspartner</th><th>Betrag</th><th>Status</th></tr></thead><tbody id="forgeRecentInvoices"><tr><td colspan="4">Rechnungen werden geladen …</td></tr></tbody></table></div></section>
+          <section class="forge-panel"><h3>Schnellstart</h3><div class="forge-quick"><button type="button" class="forge-cta" data-open="invoiceDetails">＋ Rechnung erstellen</button><button type="button" data-open="bookkeeping">▧ Beleg erfassen</button><button type="button" data-open="invoiceRegister">▤ Rechnungen verwalten</button><button type="button" data-open="closingAssistant">▥ Jahresabschluss prüfen</button></div><div class="forge-info-note">Alle Angaben stammen aus deinen lokal gespeicherten Daten. Fehlende Funktionen werden nicht als abgeschlossen dargestellt.</div></section></div>
+        </section>
     <div id="messageBar" class="message hidden"></div>
 
     <section class="card" id="bookkeeping">
@@ -178,9 +196,11 @@
       <button type="button" class="btn btn-primary" id="btnCreatePdf">PDF erstellen</button>
     </footer>
   </details>
+      </div>
+    </main>
   </div>
 
-  <script src="home-navigation.js"></script>
+  <script src="forge-workspace.js"></script>
   <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
   <script src="../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="app.js"></script>
