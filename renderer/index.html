@@ -14,6 +14,7 @@
         <button type="button" class="forge-nav-link active" data-view="dashboard">▦ <span>Dashboard</span></button>
         <button type="button" class="forge-nav-link" data-view="invoiceDetails">▤ <span>Rechnung erstellen</span></button>
         <button type="button" class="forge-nav-link" data-view="invoiceRegister">▣ <span>Rechnungen</span></button>
+        <button type="button" class="forge-nav-link" data-view="forgeCustomers">♙ <span>Kunden</span></button>
         <button type="button" class="forge-nav-link" data-view="bookkeeping">◫ <span>Belege & Ausgaben</span></button>
         <button type="button" class="forge-nav-link" data-view="doubleEntry">▥ <span>Buchhaltung</span></button>
         <button type="button" class="forge-nav-link" data-view="closingAssistant">◷ <span>Jahresabschluss</span></button>
@@ -25,6 +26,10 @@
     <main class="forge-main">
       <header class="forge-topbar"><div><h1 id="forgePageTitle">Dashboard & Finanzüberblick</h1><p id="forgePageSubtitle">Alles Wichtige auf einen Blick</p></div><div class="forge-company-badge" id="forgeCompanyBadge">Mein Unternehmen</div></header>
       <div class="container">
+        <section id="forgeCustomers" class="forge-customers" hidden>
+          <div class="forge-welcome"><div><span class="forge-eyebrow">KUNDENÜBERSICHT</span><h2>Deine Rechnungspartner</h2><p>Automatisch aus deinen lokal erfassten Rechnungen zusammengestellt.</p></div><button type="button" class="forge-cta" data-open="invoiceRegister">＋ Rechnungspartner erfassen</button></div>
+          <section class="forge-panel"><div class="forge-table-wrap"><table class="forge-recent-table"><thead><tr><th>Rechnungspartner</th><th>Rechnungen</th><th>Ausgangsrechnungen</th></tr></thead><tbody id="forgeCustomerList"><tr><td colspan="3">Rechnungspartner werden geladen …</td></tr></tbody></table></div></section><p class="forge-data-note">Eine eigenständige Kundenkartei mit Kontaktdaten ist noch nicht implementiert. Diese Übersicht nutzt ausschließlich das vorhandene Rechnungsregister.</p>
+        </section>
         <section id="forgeDashboard" class="forge-dashboard">
           <div class="forge-welcome"><div><span class="forge-eyebrow">DEIN ARBEITSPLATZ</span><h2>Willkommen bei InvoiceForge</h2><p>Behalte Rechnungen und Ausgaben im Blick – ohne Fachbegriffe.</p></div><button type="button" class="forge-cta" data-open="invoiceDetails">＋ Neue Rechnung</button></div>
           <div class="forge-kpis">
@@ -192,6 +197,7 @@
       </div>
     </section>
 
+    <div class="forge-preview-panel" aria-live="polite"><div class="forge-preview-title">Live-Rechnungsvorschau</div><div class="forge-preview-paper"><div class="forge-preview-header"><div><strong>RECHNUNG</strong><small id="forgePreviewNumber">—</small></div><div id="forgePreviewCompany">Unternehmensdaten</div></div><div class="forge-preview-customer">Rechnung an:<br><strong id="forgePreviewCustomer">—</strong></div><div class="forge-preview-line"><span>Netto</span><strong id="forgePreviewNet">0,00 €</strong></div><div class="forge-preview-line"><span>Umsatzsteuer</span><strong id="forgePreviewTax">0,00 €</strong></div><div class="forge-preview-line forge-preview-total"><span>Gesamtbetrag</span><strong id="forgePreviewGross">0,00 €</strong></div></div><p class="forge-data-note">Diese Vorschau zeigt die aktuellen Formulareingaben. Der PDF-Export verwendet weiterhin den bestehenden Rechnungsgenerator.</p></div>
     <footer class="actions">
       <button type="button" class="btn btn-primary" id="btnCreatePdf">PDF erstellen</button>
     </footer>
