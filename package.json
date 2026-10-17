@@ -8,7 +8,7 @@
     "build": "electron-builder --win",
     "dist": "electron-builder --win",
     "create-icon": "node scripts/create-icon.js",
-    "test": "node --test test/*.test.js",
+    "test": "node --test",
     "verify:bundle": "node scripts/verify-bundled-tools.js",
     "verify:taxonomies": "node scripts/verify-taxonomies.js",
     "build:linux": "electron-builder --linux",
