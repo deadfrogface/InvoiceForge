@@ -8,10 +8,16 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>InvoiceForge <small style="font-size:13px;font-weight:500;color:#64748b">· Rechnungen & Buchhaltung</small></h1>
-    </header>
-
+    <header class="workspace-header"><div><span class="eyebrow">DEIN ARBEITSPLATZ</span><h1>InvoiceForge</h1><p class="header-subtitle">Rechnungen und Buchhaltung. Einfach erledigt.</p></div><span class="offline-pill">● Lokal auf deinem Gerät</span></header>
+    <nav class="home-actions" aria-label="Hauptfunktionen">
+      <button type="button" class="home-action" data-target="invoiceDetails"><span class="home-icon">＋</span><strong>Rechnung erstellen</strong><small>Neue Rechnung schreiben</small></button>
+      <button type="button" class="home-action" data-target="closingAssistant" data-focus="caExtract"><span class="home-icon">▧</span><strong>Beleg erfassen</strong><small>PDF oder Foto auslesen</small></button>
+      <button type="button" class="home-action" data-target="bookkeeping"><span class="home-icon">▤</span><strong>Buchhaltung</strong><small>Einnahmen und Ausgaben</small></button>
+      <button type="button" class="home-action" data-target="doubleEntry" data-focus="deTax"><span class="home-icon">％</span><strong>Steuern</strong><small>Abschlussstatus ansehen</small></button>
+      <button type="button" class="home-action" data-target="closingAssistant" data-focus="caAnnual"><span class="home-icon">▥</span><strong>Jahresabschluss</strong><small>Abschluss prüfen</small></button>
+      <button type="button" class="home-action" data-target="section-company"><span class="home-icon">⚙</span><strong>Einstellungen</strong><small>Firmendaten verwalten</small></button>
+    </nav>
+    <p class="home-hint">Wähle eine Aufgabe. Erweiterte Funktionen findest du darunter.</p>
     <div id="messageBar" class="message hidden"></div>
 
     <section class="card" id="bookkeeping">
@@ -174,6 +180,7 @@
   </details>
   </div>
 
+  <script src="home-navigation.js"></script>
   <script src="../node_modules/jspdf/dist/jspdf.umd.min.js"></script>
   <script src="../node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="app.js"></script>
