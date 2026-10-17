@@ -179,3 +179,12 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 - Neuer CI-Schritt führt denselben Offline-Nachweis nach Beschaffung aus.
 - Commit für reproduzierbares Release-Staging: 8e4f5b6517d288d936905c7f85f6960a9963a15b.
 - Nächster konkreter Schritt: EB-02.01 eigenen 12-Konten-Rahmen verbindlich abgrenzen und EB-02.02 Bilanzkonten einschließlich Vorzeichen/Umgliederung gegen reale GAAP-Konzepte zuordnen.
+
+## Windows-Buildfehler 2026-10-17
+
+- Ausgangslauf 39038701656: Node 20 unter Windows expandiert `test/*.test.js` nicht. Der nachfolgende Commit 1b88c7a mit `node --test` startete zusätzlich `test/native/verify-ocr.js` ohne vorbereitete Binärdateien/Testbelege (Fehlerlauf 39061609147).
+- Plattformunabhängiger Runner `scripts/run-tests.js` übergibt alle rekursiv gefundenen `.test.js` als explizite Argumente ohne Shell. Native OCR-Abnahme bleibt unverändert im separaten Workflow nach Werkzeug-/Fixture-Staging.
+- Dateipfad mit Leerzeichen, verschachtelte Testdateien und Weitergabe fehlgeschlagener Tests durch echte Kindprozesse geprüft. Keine bestehenden Tests gelöscht oder übersprungen.
+- Manifest-Symlinktest verwendet unter Windows eine echte Directory-Junction statt einer privilegierten Dateiverknüpfung; die Ablehnung verlinkter Taxonomiedateien wird weiterhin geprüft.
+- Buchhaltungs-CI jetzt Windows und Linux. Lokal 55/55 JavaScript-Tests und 8/8 Python-Tests erfolgreich.
+- Release-Abhängigkeiten bleiben verpflichtend: Windows OCR-/Validator-Staging ist weiterhin unvollständig. Dieser Fix macht keine Aussage über ein vollständig erfolgreich erzeugtes Offline-Installationspaket.

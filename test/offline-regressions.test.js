@@ -12,8 +12,11 @@ test('taxonomy manifests reject duplicate paths and symlinked schemas',()=>{
   const manifest=files=>fs.writeFileSync(path.join(dir,'manifest.json'),JSON.stringify({version:'6.9',files}));
   manifest([item,item]);assert.throws(()=>loadTaxonomyManifest(root,2026),/Doppelter/);
   fs.renameSync(path.join(dir,'a.xsd'),path.join(root,'outside.xsd'));
-  fs.symlinkSync(path.join(root,'outside.xsd'),path.join(dir,'a.xsd'));
-  manifest([item]);assert.throws(()=>loadTaxonomyManifest(root,2026),/Verknüpfungen/);
+  const outside=path.join(root,'outside');fs.mkdirSync(outside);
+  fs.renameSync(path.join(root,'outside.xsd'),path.join(outside,'a.xsd'));
+  // Directory junctions need no Windows symlink privilege and exercise the same containment rule.
+  fs.symlinkSync(outside,path.join(dir,'linked'),process.platform==='win32'?'junction':'dir');
+  manifest([{...item,path:'linked/a.xsd'}]);assert.throws(()=>loadTaxonomyManifest(root,2026),/Verknüpfungen/);
  }finally{fs.rmSync(root,{recursive:true,force:true});}
 });
 test('account aggregation rejects unsafe integer sums and inherited mappings',()=>{
