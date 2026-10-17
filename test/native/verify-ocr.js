@@ -1,6 +1,7 @@
 'use strict';
 // Explicit native acceptance command; failures are never converted to skipped tests.
 const assert=require('node:assert/strict'),path=require('node:path');
+if(process.env.INVOICEFORGE_TEST_RESOURCES)process.resourcesPath=path.resolve(process.env.INVOICEFORGE_TEST_RESOURCES);
 const {readDocument,capabilities}=require('../../main/document-extraction');
 const root=path.resolve(process.argv[2]||'test/native/fixtures');
 const supported=capabilities();

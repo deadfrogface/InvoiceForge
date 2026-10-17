@@ -6,7 +6,9 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 
 root = pathlib.Path(sys.argv[1]); root.mkdir(parents=True, exist_ok=True)
-font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 48)
+font_path = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+if not pathlib.Path(font_path).exists(): font_path = 'C:/Windows/Fonts/arial.ttf'
+font = ImageFont.truetype(font_path, 48)
 for language, lines in {
     'deu': ['RECHNUNG 2026-0042', 'Lieferant: Musterhandel', 'Gesamtbetrag: 119,00 EUR'],
     'eng': ['INVOICE 2026-0043', 'Supplier: Example Company', 'Total amount: 238.00 EUR'],

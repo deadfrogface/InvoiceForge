@@ -188,3 +188,13 @@ Status „implementiert und lokal getestet“ ist nur der jeweilige kleine Arbei
 - Manifest-Symlinktest verwendet unter Windows eine echte Directory-Junction statt einer privilegierten Dateiverknüpfung; die Ablehnung verlinkter Taxonomiedateien wird weiterhin geprüft.
 - Buchhaltungs-CI jetzt Windows und Linux. Lokal 55/55 JavaScript-Tests und 8/8 Python-Tests erfolgreich.
 - Release-Abhängigkeiten bleiben verpflichtend: Windows OCR-/Validator-Staging ist weiterhin unvollständig. Dieser Fix macht keine Aussage über ein vollständig erfolgreich erzeugtes Offline-Installationspaket.
+
+## Windows-Alpha-Releasepfad 2026-10-18
+
+- Ursache fehlender Releases: grüne Buchhaltungstests starteten keinen Build; Workflow reagierte nur auf Versions-Tag/manuellen Start. Außerdem kein Windows-Werkzeug-Staging vor der verpflichtenden Paketprüfung.
+- Releaseworkflow reagiert nun auf erfolgreich geprüfte Pushes nach main, baut exakt den geprüften Commit und veröffentlicht automatisch als deutlich markierte Alpha-Vorabversion. Tags bleiben für explizite Versionen erhalten. Kein Release bei fehlgeschlagenen Abnahmen.
+- Windows-Build stellt Poppler, Tesseract 5.5 und OpenJDK 21 über eine Buildumgebung bereit und kopiert Laufzeit, DLLs, Sprachdaten, Lizenzen und Paketmetadaten in den Installer. Endnutzer installieren diese Komponenten nicht separat.
+- KoSIT 1.6.3 und offizielle XRechnung-Konfiguration 3.0.2 (2026-08-31) aus Original-Releases mit festem SHA-256; direkte Integration mit gebündeltem Java, temporäre Berichte werden bereinigt.
+- Lokal echte positive XRechnung akzeptiert; fehlende Rechnungs-ID, unbekanntes XML-Schema und externe DTD abgewiesen. Originalfixture mit Apache-Lizenz im Testbestand.
+- Windows-Nativabnahme vor der Paketierung und gegen die tatsächlich kopierten Installer-Ressourcen verbindlich. OCR-Testbilder unter Windows mit Systemschrift erzeugt.
+- Vollständige E-Bilanz und Steuerlogik bleiben offen. Alpha-Veröffentlichung ist keine fachliche Freigabe dieser Module.

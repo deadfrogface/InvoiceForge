@@ -4,7 +4,13 @@ function toolPath(name){
  if(!['pdftotext','pdftoppm','tesseract','java','einvoice-validator'].includes(name))throw Error('Unbekanntes Paketwerkzeug');
  const suffix=process.platform==='win32'?'.exe':'';
  const bundled=path.join(process.resourcesPath||path.resolve(__dirname,'..','vendor'),'tools',process.platform,process.arch,name+suffix);
- return fs.existsSync(bundled)?bundled:null;
+ const root=require('./bundled-runtime').bundleRoot();
+ const candidates=[bundled];
+ if(process.platform==='win32'){
+  if(name==='java')candidates.push(path.join(root,'runtime','Library','lib','jvm','bin','java.exe'));
+  candidates.push(path.join(root,'runtime','Library','bin',name+suffix));
+ }
+ return candidates.find(file=>fs.existsSync(file))||null;
 }
 function executable(name){
  try{runLocal(name,[['pdftotext','pdftoppm'].includes(name)?'-v':'--version'],5000);return true;}catch{return false;}}
@@ -12,12 +18,13 @@ function executable(name){
 function runLocal(name,args,timeout=30000){
  const binary=toolPath(name);
  if(!binary)throw Error('Benötigte Komponente '+name+' ist nicht im InvoiceForge-Paket enthalten. Installation ist unvollständig.');
- const env={...process.env};
+ const env=require('./bundled-runtime').runtimeEnvironment(binary);
  if(process.platform==='linux')env.LD_LIBRARY_PATH=[path.join(path.dirname(binary),'lib'),env.LD_LIBRARY_PATH||''].filter(Boolean).join(':');
  if(name==='tesseract'){
-  const tessdata=path.join(path.dirname(binary),'tessdata');
-  if(!fs.existsSync(path.join(tessdata,'deu.traineddata'))||!fs.existsSync(path.join(tessdata,'eng.traineddata')))throw Error('OCR-Sprachdaten fehlen im InvoiceForge-Paket');
-  env.TESSDATA_PREFIX=tessdata;
+  const tessdata=path.join(require('./bundled-runtime').bundleRoot(),'tessdata');
+  const languageDir=fs.existsSync(tessdata)?tessdata:path.join(path.dirname(binary),'tessdata');
+  if(!fs.existsSync(path.join(languageDir,'deu.traineddata'))||!fs.existsSync(path.join(languageDir,'eng.traineddata')))throw Error('OCR-Sprachdaten fehlen im InvoiceForge-Paket');
+  env.TESSDATA_PREFIX=languageDir;
  }
  const r=cp.spawnSync(binary,args,{encoding:'utf8',timeout,maxBuffer:8*1024*1024,windowsHide:true,shell:false,env});
  if(r.error)throw Error(name+': '+r.error.message);
@@ -50,5 +57,5 @@ function readDocument(filename){
  if(!executable('tesseract'))throw Error('OCR-Komponente fehlt im InvoiceForge-Paket.');
  return {source:'tesseract',text:runLocal('tesseract',[filename,'stdout','-l','deu+eng'],60000).slice(0,200000),requiresReview:true};
 }
-function capabilities(){return {pdftotext:executable('pdftotext'),pdftoppm:executable('pdftoppm'),tesseract:executable('tesseract'),java:executable('java'),ericConfigured:false,einvoiceValidatorConfigured:false};}
+function capabilities(){return {pdftotext:executable('pdftotext'),pdftoppm:executable('pdftoppm'),tesseract:executable('tesseract'),java:executable('java'),ericConfigured:false,einvoiceValidatorConfigured:Boolean(toolPath('java')&&require('./bundled-runtime').kositResources())};}
 module.exports={readDocument,capabilities,toolPath};
