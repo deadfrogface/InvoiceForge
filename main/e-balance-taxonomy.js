@@ -1,0 +1,47 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const SUPPORTED={'6.9':{firstYear:2025,normalFirstYear:2026},'6.10':{firstYear:2026,normalFirstYear:2027}};
+function selectTaxonomy(year,version){
+ if(!Number.isInteger(year)||year<2000||year>2200)throw Error('Ungültiges Geschäftsjahr');
+ const v=version|| (year>=2027?'6.10':year>=2026?'6.9':null);
+ if(!v||!SUPPORTED[v]||year<SUPPORTED[v].firstYear)throw Error('Taxonomie für dieses Geschäftsjahr nicht hinterlegt');
+ return {version:v,year,earlyUse:year<SUPPORTED[v].normalFirstYear};
+}
+function loadTaxonomyManifest(root,year,version){
+ const selected=selectTaxonomy(year,version);
+ const directory=path.resolve(root,selected.version);
+ if(fs.existsSync(directory)&&fs.lstatSync(directory).isSymbolicLink())throw Error('Taxonomie-Verknüpfungen sind unzulässig');
+ const manifestFile=path.join(directory,'manifest.json');
+ if(!fs.existsSync(manifestFile))throw Error('Amtliches Taxonomiepaket '+selected.version+' fehlt offline');
+ if(fs.lstatSync(manifestFile).isSymbolicLink())throw Error('Taxonomie-Verknüpfungen sind unzulässig');
+ const manifest=JSON.parse(fs.readFileSync(manifestFile,'utf8'));
+ if(manifest.version!==selected.version||!Array.isArray(manifest.files)||!manifest.files.length)throw Error('Taxonomiemanifest unvollständig');
+ const seen=new Set();
+ for(const file of manifest.files){
+  if(typeof file.path!=='string'||!/^[-\w./]+$/.test(file.path)||file.path.startsWith('/')||file.path.split('/').includes('..')||!/^([a-f0-9]{64})$/.test(file.sha256))throw Error('Ungültiger Taxonomieeintrag');
+  const location=path.join(directory,file.path);
+  if(file.path.split('/').some(p=>!p||p==='.')||seen.has(file.path))throw Error('Doppelter oder nicht kanonischer Taxonomiepfad');
+  seen.add(file.path);
+  let component=directory;
+  for(const part of file.path.split('/')){component=path.join(component,part);if(fs.existsSync(component)&&fs.lstatSync(component).isSymbolicLink())throw Error('Taxonomie-Verknüpfungen sind unzulässig');}
+  if(!fs.existsSync(location)||!fs.statSync(location).isFile())throw Error('Taxonomiedatei fehlt: '+file.path);
+  const digest=crypto.createHash('sha256').update(fs.readFileSync(location)).digest('hex');
+  if(digest!==file.sha256)throw Error('Taxonomie-Prüfsumme stimmt nicht: '+file.path);
+ }
+ return {...selected,files:manifest.files.length,source:manifest.source||null,verifiedHashes:true};
+}
+function mapAccountBalances(trialBalance,mapping){
+ if(!trialBalance||!Array.isArray(trialBalance.accounts)||!mapping||typeof mapping!=='object')throw Error('Konten oder Mapping fehlen');
+ const facts=new Map(),unmapped=[];
+ for(const account of trialBalance.accounts){
+  if(!Number.isSafeInteger(account.balanceCents))throw Error('Ungültiger Kontensaldo');
+  if(account.balanceCents===0)continue;
+  const concept=Object.hasOwn(mapping,account.number)?mapping[account.number]:null;
+  if(typeof concept!=='string'||!/^([a-zA-Z][\w-]*\.)+[\w.-]+$/.test(concept)){unmapped.push(account.number);continue;}
+  const sum=(facts.get(concept)||0)+account.balanceCents;
+  if(!Number.isSafeInteger(sum))throw Error('Kontensumme überschreitet sicheren Centbereich');
+  facts.set(concept,sum);
+ }
+ return {facts:Object.fromEntries(facts),unmapped,complete:unmapped.length===0,accountProof:trialBalance.accounts.filter(a=>a.balanceCents!==0).map(a=>({number:a.number,name:a.name,balanceCents:a.balanceCents,concept:mapping[a.number]||null}))};
+}
+module.exports={SUPPORTED,selectTaxonomy,loadTaxonomyManifest,mapAccountBalances};

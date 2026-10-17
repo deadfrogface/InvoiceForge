@@ -1,0 +1,2 @@
+# Build-time validation only; shipping a standalone validator remains a separate task.
+arelle-release==2.46.1

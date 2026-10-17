@@ -1,0 +1,42 @@
+name: Official E-Bilanz taxonomy staging
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/bundled-offline-dependencies]
+    paths:
+      - scripts/fetch-official-taxonomies.py
+      - scripts/stage-taxonomies.js
+      - scripts/validate-taxonomy-dts.py
+      - scripts/xbrl-validation-requirements.txt
+      - main/taxonomy-sources.json
+      - scripts/manifest-taxonomy.js
+      - scripts/verify-taxonomies.js
+      - .github/workflows/ebilanz-taxonomies.yml
+jobs:
+  taxonomy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test archive handling
+        run: python3 -m unittest discover -s test -p "*_test.py" -v
+      - name: Download official 6.9 and 6.10 XBRL packages
+        run: |
+          python3 scripts/fetch-official-taxonomies.py --version 6.9 --output vendor/taxonomies/6.9
+          python3 scripts/fetch-official-taxonomies.py --version 6.10 --output vendor/taxonomies/6.10
+      - name: Index files and validate SHA-256
+        run: |
+          node scripts/manifest-taxonomy.js 6.9 vendor/taxonomies/6.9 https://www.xbrl.de/german-gaap-taxonomy-v6.9-2025-04-01.zip
+          node scripts/manifest-taxonomy.js 6.10 vendor/taxonomies/6.10 https://www.xbrl.de/german-gaap-taxonomy-v6.10-2026-04-01.zip
+          npm run verify:taxonomies
+      - name: Install build-time XBRL validator
+        run: python3 -m pip install -r scripts/xbrl-validation-requirements.txt
+      - name: Validate GAAP and GCD DTS offline with negative control
+        run: python3 scripts/validate-taxonomy-dts.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: official-ebilanz-taxonomies-6.9-6.10
+          path: vendor/taxonomies/
+          retention-days: 30

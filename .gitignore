@@ -3,3 +3,10 @@ dist/
 *.log
 .DS_Store
 Thumbs.db
+
+__pycache__/
+*.pyc
+
+# Build-time native staging; produced by platform workflows
+vendor/tools/
+vendor/taxonomies/

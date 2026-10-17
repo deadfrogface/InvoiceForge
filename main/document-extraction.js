@@ -1,8 +1,25 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process');
-function executable(name){const r=cp.spawnSync(name,['--version'],{encoding:'utf8',timeout:5000,windowsHide:true});return !r.error&&r.status===0;}
+function toolPath(name){
+ if(!['pdftotext','pdftoppm','tesseract','java','einvoice-validator'].includes(name))throw Error('Unbekanntes Paketwerkzeug');
+ const suffix=process.platform==='win32'?'.exe':'';
+ const bundled=path.join(process.resourcesPath||path.resolve(__dirname,'..','vendor'),'tools',process.platform,process.arch,name+suffix);
+ return fs.existsSync(bundled)?bundled:null;
+}
+function executable(name){
+ try{runLocal(name,[['pdftotext','pdftoppm'].includes(name)?'-v':'--version'],5000);return true;}catch{return false;}}
+
 function runLocal(name,args,timeout=30000){
- const r=cp.spawnSync(name,args,{encoding:'utf8',timeout,maxBuffer:8*1024*1024,windowsHide:true,shell:false});
+ const binary=toolPath(name);
+ if(!binary)throw Error('Benötigte Komponente '+name+' ist nicht im InvoiceForge-Paket enthalten. Installation ist unvollständig.');
+ const env={...process.env};
+ if(process.platform==='linux')env.LD_LIBRARY_PATH=[path.join(path.dirname(binary),'lib'),env.LD_LIBRARY_PATH||''].filter(Boolean).join(':');
+ if(name==='tesseract'){
+  const tessdata=path.join(path.dirname(binary),'tessdata');
+  if(!fs.existsSync(path.join(tessdata,'deu.traineddata'))||!fs.existsSync(path.join(tessdata,'eng.traineddata')))throw Error('OCR-Sprachdaten fehlen im InvoiceForge-Paket');
+  env.TESSDATA_PREFIX=tessdata;
+ }
+ const r=cp.spawnSync(binary,args,{encoding:'utf8',timeout,maxBuffer:8*1024*1024,windowsHide:true,shell:false,env});
  if(r.error)throw Error(name+': '+r.error.message);
  if(r.status!==0)throw Error(name+' fehlgeschlagen: '+String(r.stderr||r.stdout).slice(0,1000));
  return String(r.stdout||'');
@@ -16,20 +33,22 @@ function readDocument(filename){
  if(ext==='.xml')return {source:'xml',...require('./e-invoice').inspectEInvoiceFile(filename)};
  if(ext==='.txt')return {source:'text',text:fs.readFileSync(filename,'utf8').slice(0,200000),requiresReview:true};
  if(ext==='.pdf'){
-  if(!executable('pdftotext'))throw Error('PDF-Textwerkzeug pdftotext (Poppler) fehlt. Lokale Installation erforderlich.');
+  if(!executable('pdftotext'))throw Error('PDF-Textwerkzeug fehlt im InvoiceForge-Paket.');
   let text=runLocal('pdftotext',['-layout',filename,'-'],30000);
   if(text.trim().length>=20)return {source:'poppler-pdftotext',text:text.slice(0,200000),requiresReview:true};
-  if(!executable('ocrmypdf'))throw Error('Scan-PDF erkannt: OCRmyPDF fehlt. Bitte lokal installieren.');
+  if(!executable('pdftoppm')||!executable('tesseract'))throw Error('Scan-PDF erkannt: PDF-Renderer oder OCR fehlt im InvoiceForge-Paket.');
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'invoiceforge-ocr-'));
   try{
-   const output=path.join(temp,'ocr.pdf');
-   runLocal('ocrmypdf',['--skip-text','--language','deu+eng','--jobs','1','--tesseract-timeout','90',filename,output],120000);
-   text=runLocal('pdftotext',['-layout',output,'-'],30000);
-   return {source:'ocrmypdf',text:text.slice(0,200000),requiresReview:true};
+   const prefix=path.join(temp,'page');
+   runLocal('pdftoppm',['-f','1','-l','20','-r','200','-png',filename,prefix],120000);
+   const pages=fs.readdirSync(temp).filter(name=>/^page-\d+\.png$/.test(name)).sort((a,b)=>Number(a.match(/\d+/)[0])-Number(b.match(/\d+/)[0]));
+   if(!pages.length)throw Error('Keine PDF-Seiten für OCR erzeugt');
+   const extracted=pages.map(page=>runLocal('tesseract',[path.join(temp,page),'stdout','-l','deu+eng'],60000));
+   return {source:'bundled-pdf-ocr',text:extracted.join('\n').slice(0,200000),requiresReview:true,truncated:pages.length===20};
   }finally{fs.rmSync(temp,{recursive:true,force:true});}
  }
- if(!executable('tesseract'))throw Error('Tesseract OCR fehlt. Bitte lokal installieren.');
+ if(!executable('tesseract'))throw Error('OCR-Komponente fehlt im InvoiceForge-Paket.');
  return {source:'tesseract',text:runLocal('tesseract',[filename,'stdout','-l','deu+eng'],60000).slice(0,200000),requiresReview:true};
 }
-function capabilities(){return {pdftotext:executable('pdftotext'),ocrmypdf:executable('ocrmypdf'),tesseract:executable('tesseract'),java:executable('java'),ericConfigured:false,einvoiceValidatorConfigured:false};}
-module.exports={readDocument,capabilities};
+function capabilities(){return {pdftotext:executable('pdftotext'),pdftoppm:executable('pdftoppm'),tesseract:executable('tesseract'),java:executable('java'),ericConfigured:false,einvoiceValidatorConfigured:false};}
+module.exports={readDocument,capabilities,toolPath};

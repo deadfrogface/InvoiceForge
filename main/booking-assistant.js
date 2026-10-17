@@ -22,13 +22,15 @@ function proposeDocument(doc,history=[]){
  if(!doc.currency||doc.currency!=='EUR')issues.push('Währung prüfen: keine bestätigte EUR-Rechnung');
  const fingerprint=crypto.createHash('sha256').update(JSON.stringify([doc.invoiceNumber||'',date,grossCents,doc.supplier||''])).digest('hex');
  if(history.some(h=>h.fingerprint===fingerprint))issues.push('Möglicher doppelter Beleg');
- const netCents=grossCents===null?null:Math.round(grossCents/1.19);
- const vatCents=grossCents===null?null:grossCents-netCents;
+ const taxRate=[0,7,19].includes(doc.taxRate)?doc.taxRate:null;
+ const netCents=grossCents===null||taxRate===null?null:Math.round(grossCents*100/(100+taxRate));
+ const vatCents=netCents===null?null:grossCents-netCents;
+ if(taxRate===null)issues.push('Steuersatz fehlt oder ist nicht bestätigt');
  const direction=doc.direction==='outgoing'?'outgoing':'incoming';
- const lines=grossCents===null||grossCents===0?[]:direction==='incoming'
+ const lines=grossCents===null||grossCents===0||taxRate!==19?[]:direction==='incoming'
   ?[{account:'6300',debitCents:netCents,creditCents:0},{account:'1576',debitCents:vatCents,creditCents:0},{account:'1600',debitCents:0,creditCents:grossCents}]
   :[{account:'1400',debitCents:grossCents,creditCents:0},{account:'4000',debitCents:0,creditCents:netCents},{account:'1776',debitCents:0,creditCents:vatCents}];
- issues.push('Steuersatz 19 % und Vorsteuerabzug nicht bestätigt; Kontierung ist nur ein Vorschlag');
+ issues.push('Steuersatz und Vorsteuerabzug müssen geprüft werden; Kontierung nur für bestätigte 19 Prozent vorbereitet');
  if(grossCents!==null&&grossCents>0&&lines.length){try{validateJournal({date:year?date:'2026-01-01',description:'Buchungsvorschlag',lines});}catch(error){issues.push('Buchungsvorschlag rechnerisch ungültig: '+error.message);lines.length=0;}}
  if(!year||!doc.invoiceNumber||doc.currency!=='EUR')lines.length=0;
  if(doc.format==='CII / ZUGFeRD-XML'||doc.valid===false)issues.push('E-Rechnung noch nicht gegen EN16931/XRechnung validiert');

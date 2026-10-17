@@ -8,7 +8,12 @@
     "build": "electron-builder --win",
     "dist": "electron-builder --win",
     "create-icon": "node scripts/create-icon.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "verify:bundle": "node scripts/verify-bundled-tools.js",
+    "verify:taxonomies": "node scripts/verify-taxonomies.js",
+    "build:linux": "electron-builder --linux",
+    "build:mac": "electron-builder --mac",
+    "stage:taxonomies": "node scripts/stage-taxonomies.js"
   },
   "dependencies": {
     "electron-store": "^8.1.0",

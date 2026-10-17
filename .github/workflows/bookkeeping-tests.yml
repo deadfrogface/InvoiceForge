@@ -1,7 +1,7 @@
 name: Bookkeeping tests
 on:
   push:
-    branches: [feature/bookkeeping-foundation, main]
+    branches: [feature/bookkeeping-foundation, feature/bundled-offline-dependencies, main]
   pull_request:
 jobs:
   test:
@@ -12,3 +12,5 @@ jobs:
         with:
           node-version: '22'
       - run: npm test
+      - name: Taxonomy archive security tests
+        run: python3 -m unittest discover -s test -p "*_test.py" -v
