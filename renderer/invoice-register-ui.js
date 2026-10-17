@@ -22,7 +22,7 @@
      select.addEventListener('change',async()=>{
       try{
        if(select.value==='cancelled'&&!confirm('Rechnung wirklich als storniert markieren?')){select.value=entry.status;return;}
-       await api.invoicesStatus(entry.id,select.value);await refresh();
+       await api.invoicesStatus(entry.id,select.value);await refresh();document.dispatchEvent(new Event('invoiceforge:invoices-changed'));
       }catch(e){message.textContent='Fehler: '+e.message;select.value=entry.status;}
      });
      row.append(select);
@@ -37,7 +37,7 @@
     const gross=Number($('irGross').value);
     if(!Number.isFinite(gross)||gross<=0||Math.abs(gross*100-Math.round(gross*100))>1e-7)throw Error('Ungültiger Eurobetrag');
     await api.invoicesAdd({direction:$('irDirection').value,phase:$('irPhase').value,number:$('irNumber').value,counterparty:$('irCounterparty').value,issueDate:$('irDate').value,dueDate:$('irDue').value,grossCents:Math.round(gross*100),note:$('irNote').value});
-    message.textContent='Rechnung lokal registriert';$('irNumber').value='';$('irGross').value='';await refresh();
+    message.textContent='Rechnung lokal registriert';$('irNumber').value='';$('irGross').value='';await refresh();document.dispatchEvent(new Event('invoiceforge:invoices-changed'));
    }catch(e){message.textContent='Fehler: '+e.message;}
   });
   refresh().catch(e=>{message.textContent='Fehler beim Laden: '+e.message;});
