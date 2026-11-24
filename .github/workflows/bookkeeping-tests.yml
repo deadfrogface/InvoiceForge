@@ -1,14 +1,21 @@
 name: Bookkeeping tests
+# Kosten: PRs und Feature-Branches nur Linux; Windows zusaetzlich auf main (Release-Gate) und manuell.
 on:
   push:
     branches: [feature/bookkeeping-foundation, feature/bundled-offline-dependencies, main]
+    paths-ignore: ['docs/**', '**/*.md']
   pull_request:
+    paths-ignore: ['docs/**', '**/*.md']
+  workflow_dispatch:
+concurrency:
+  group: bookkeeping-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: ${{ fromJSON((github.ref == 'refs/heads/main' && github.event_name != 'pull_request') && '["ubuntu-latest","windows-latest"]' || '["ubuntu-latest"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
