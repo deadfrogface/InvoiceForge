@@ -7,8 +7,10 @@ const store = new Store({ cwd: app.getPath('userData') });
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 900,
-    height: 1000,
+    width: 1360,
+    height: 900,
+    minWidth: 860,
+    minHeight: 620,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
