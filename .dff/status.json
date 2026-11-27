@@ -1,0 +1,23 @@
+{
+  "project": "InvoiceForge",
+  "stage": "In Arbeit",
+  "updated": "2026-11-27T09:03:00.000Z",
+  "now": "XBRL-Export fertigstellen; die Buchführung steckt bereits in DFF Studios.",
+  "version": "1.0.0",
+  "next": [
+    "XBRL-Export abschließen",
+    "E-Rechnung (ZUGFeRD/XRechnung) einbauen",
+    "Gratis-Stufe festlegen (z. B. 10 Rechnungen pro Jahr)"
+  ],
+  "blockers": [],
+  "tagline": "Rechnungen und Einnahmen-Überschuss-Rechnung offline – für Kleinunternehmer und Kreative.",
+  "color": "#a8323f",
+  "icon": "lucide:receipt-euro",
+  "log": [
+    {
+      "date": "2026-11-27",
+      "summary": "Statusdatei für DFF Studios angelegt (Stand, nächste Schritte, Aussehen).",
+      "by": "Claude Code"
+    }
+  ]
+}
